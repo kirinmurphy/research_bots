@@ -199,7 +199,6 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: Instructions load once at agent initialization; a restart picks up `AGENT.md` edits.
 - 2026-10-31: Model set by `KNOWLEDGE_RESEARCHER_MODEL` as a Mastra model-router string; no default model is hard-coded.
 - 2026-10-31: A thin `AgentRunner` interface and framework-free agent definitions in `src/agents/` keep the agent framework replaceable. The user chose this over definitions-only so domain code can be tested with a fake runner.
-
 - 2026-10-31: Mastra installed at the newest releases older than 7 days (`@mastra/core` 1.79.0, `mastra` 1.35.0, `@mastra/libsql` 1.27.0, `@mastra/observability` 1.21.0) because npm's `min-release-age = 7` refuses the 1.81.0 the scaffold pins. User decision: install the newest allowed versions and upgrade later rather than bypass the age gate.
 - 2026-10-31: Scaffolded with `create-mastra --empty --no-install` rather than the default template. The default template's install fails under the age gate and brings example agents and tools that this plan removes; the empty scaffold has none. User approved.
 - 2026-10-31: Project root found by walking up from the working directory to the nearest folder with both `package.json` and `agents/`. Observed under `mastra dev`: the bundle runs from `.mastra/output` and the working directory is `src/mastra/public`, so a module-relative path does not find the root. `mastra start` runs from `.mastra/output`, which has its own `package.json`, so `package.json` alone is not a safe marker. Alternatives: module-relative path (breaks under bundling), an explicit env variable (one more setting to get wrong).
@@ -230,6 +229,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Gate: `npm run typecheck && npm test` passes (2 files, 11 tests).
 - Validation pass 1 (fresh-context subagent): one `fix` finding, fixed (5dbaca8).
 - Validation pass 2 (fresh-context subagent): three `fix` findings, fixed (8eba8cc).
+- Validation: clean on pass 3 at ea04eb6 (fresh-context subagent).
 
 ## References
 
