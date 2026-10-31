@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "namespaces": {
+    "ingest": "Video intake, transcripts, timestamps, and source metadata.",
+    "knowledge": "Topics, technologies, claims, deduplication, and search.",
+    "strategy": "Repository context, technology evaluation, recommendations, and exploration priorities.",
+    "agents": "Shared agent runtime, tools, memory, and orchestration."
+  }
+}
