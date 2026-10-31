@@ -1,12 +1,12 @@
 ---
 id: io239qp2
-priority: high
+priority: none
 next_action: Scaffold the Mastra app at the repository root, strip the example agent and tools, and add a Vitest test script.
 blocked_by: []
 depends_on: []
 related: ["12v3ljqo", "w6j1t8pq", "pkxml601", "y9gc5tc0"]
 reviewed_commit:
-worktree:
+worktree: agents-specialized-researcher-mastra-studio
 ---
 
 # Run one specialized researcher in Mastra Studio
