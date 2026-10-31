@@ -216,6 +216,17 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [ ] Editing `AGENT.md` changes the researcher's answer to the fixed prompt. Needs two live model calls in Studio with a provider key.
 - [ ] A Studio run produces a trace that is visible under Traces. Storage and the exporter are configured, but no model call has run.
 
+## Review
+
+### Findings
+
+- [x] The unknown-agent runner test accepted any rejection; it now asserts the error names the missing id — fixed (5dbaca8)
+
+### Verification
+
+- Gate: `npm run typecheck && npm test` passes (2 files, 10 tests).
+- Validation pass 1 (fresh-context subagent): one `fix` finding, fixed (5dbaca8).
+
 ## References
 
 - <https://mastra.ai/docs>
