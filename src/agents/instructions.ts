@@ -33,7 +33,7 @@ export function loadInstructions(definition: Pick<AgentDefinition, "instructions
 export interface ModelSetting {
   /** Model-router id, `provider/model-name`. */
   id: `${string}/${string}`;
-  /** Absent when the agent's key variable is unset; the provider's standard key variable then applies. */
+  /** Absent when the agent's key variable is unset or blank; the provider's standard key variable then applies. */
   apiKey?: string;
 }
 

@@ -226,13 +226,15 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] The `findProjectRoot` comment tied the `agents/` marker to `mastra dev`; it matters for `mastra start` from `.mastra/output` — fixed (8eba8cc)
 - [x] The project-root test name described a layout neither command produces; replaced with the `.mastra/output` and `src/mastra/public` cases — fixed (8eba8cc)
 - [x] The Decision Log entry for the project-root search gave the same wrong reason — fixed (8eba8cc)
+- [x] Review > Verification still showed the 11-test gate and a clean pass that predates the API key change — fixed (record updated with pass 4)
 
 ### Verification
 
-- Gate: `npm run typecheck && npm test` passes (2 files, 11 tests).
+- Gate: `npm run typecheck && npm test` passes (2 files, 17 tests).
 - Validation pass 1 (fresh-context subagent): one `fix` finding, fixed (5dbaca8).
 - Validation pass 2 (fresh-context subagent): three `fix` findings, fixed (8eba8cc).
-- Validation: clean on pass 3 at ea04eb6 (fresh-context subagent).
+- Validation pass 3 (fresh-context subagent): clean at ea04eb6.
+- Validation pass 4 (fresh-context subagent) on dcecede, the API key change: one `fix` finding in this record, fixed.
 
 ## References
 
