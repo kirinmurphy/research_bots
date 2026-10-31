@@ -1,7 +1,7 @@
 ---
 id: io239qp2
 priority: none
-next_action: Add a provider key to .env, run the fixed smoke-test prompt in Studio before and after one AGENT.md edit, and fill in docs/smoke-tests/knowledge-researcher-studio.md.
+next_action: Set KNOWLEDGE_RESEARCHER_MODEL and KNOWLEDGE_RESEARCHER_API_KEY in .env, run the fixed smoke-test prompt in Studio before and after one AGENT.md edit, and fill in docs/smoke-tests/knowledge-researcher-studio.md.
 blocked_by: []
 depends_on: []
 related: ["12v3ljqo", "w6j1t8pq", "pkxml601", "y9gc5tc0"]
@@ -54,7 +54,7 @@ This plan is the root of the backlog. Later plans build on what it creates:
 
 | Switch | Handled by | Cost of switching |
 | --- | --- | --- |
-| Model provider (for example Anthropic to OpenAI) | Mastra's model router, reading a `provider/model-name` string | Change `KNOWLEDGE_RESEARCHER_MODEL` and the provider key |
+| Model provider (for example GLM to Claude) | Mastra's model router, reading a `provider/model-name` string | Change the values of `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` |
 | Agent framework (for example Mastra to another SDK) | The thin agent layer in this plan | Rewrite `src/mastra/` and any workflows; `src/agents/` and domain code stay unchanged |
 
 ### Ownership boundary
@@ -119,7 +119,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Model configuration
 
-The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The provider key uses Mastra's standard variable for that provider (for example `ANTHROPIC_API_KEY`). A missing model setting fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
+The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes two values and renames nothing; when that variable is unset, Mastra's standard variable for the provider applies. A missing or malformed model setting fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
 
 ### Tooling decisions
 
@@ -143,7 +143,7 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 - [x] Create `src/agents/` with the agent definition, the `AgentRunner` type, and the instruction and model loaders, with no Mastra imports.
 - [x] Write `agents/knowledge-researcher/AGENT.md`; build and register the Mastra agent from its definition in `src/mastra/`.
 - [x] Implement the Mastra-backed `AgentRunner` as a direct delegation to the registered agent.
-- [x] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL` and the provider key name with placeholder values.
+- [x] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` with placeholder values.
 - [x] Add the Vitest tests listed under Validation.
 - [ ] (Blocked: provider API key) Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
 - [ ] (Blocked: provider API key) Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
@@ -162,7 +162,8 @@ The smoke-test record lists the date, Mastra version, model string, the prompt, 
 | Check | How it is verified |
 | --- | --- |
 | Instructions come from `AGENT.md` | Vitest: the instruction loader returns a fixture file's text, and two different fixture files produce two different results |
-| Missing model fails clearly | Vitest: resolving the model without `KNOWLEDGE_RESEARCHER_MODEL` throws an error naming the variable |
+| Missing model fails clearly | Vitest: resolving the model without `KNOWLEDGE_RESEARCHER_MODEL`, or with a malformed value, throws an error naming the variable |
+| One key variable for any provider | Vitest: the model id and key come from the agent's two variables, and an unset key is omitted so the provider's standard variable applies |
 | Runner delegates to Mastra | Vitest: the Mastra runner, given a `Mastra` instance whose agent returns a canned response, returns that text for the agent's id and rejects an unknown id; no model is called |
 | `src/agents/` is framework-free | `grep -rn "@mastra" src/agents` prints nothing |
 | Editing `AGENT.md` changes the agent | Manual: the before/after smoke-test responses differ |
@@ -204,11 +205,13 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: Project root found by walking up from the working directory to the nearest folder with both `package.json` and `agents/`. Observed under `mastra dev`: the bundle runs from `.mastra/output` and the working directory is `src/mastra/public`, so a module-relative path does not find the root. `mastra start` runs from `.mastra/output`, which has its own `package.json`, so `package.json` alone is not a safe marker. Alternatives: module-relative path (breaks under bundling), an explicit env variable (one more setting to get wrong).
 - 2026-10-31: Studio traces use LibSQL storage at `<project root>/mastra.db` plus `Observability` with `MastraStorageExporter` and `SensitiveDataFilter`. Mastra's quickstart also adds DuckDB, which only adds metrics; the platform exporter sends data off-machine. Both left out as beyond the minimum.
 - 2026-10-31: The runner test stubs the model with Mastra's own `createMockModel` from `@mastra/core/test-utils/llm-mock` (v2), registered on a real `Mastra` instance, so the delegation runs end to end with no network call.
+- 2026-10-31: User decision: each agent reads its key from a provider-neutral variable (`KNOWLEDGE_RESEARCHER_API_KEY`) next to its model variable, so switching provider changes values, not variable names. Supersedes the earlier "provider's standard variable" design. The pair is per agent, not shared, so a later agent can use a different provider. Mastra receives `{ id, apiKey }`; a stubbed-`fetch` probe showed the key reaching z.ai, DeepSeek, and Anthropic endpoints with no provider variables set. An unset key falls back to the provider's standard variable rather than failing, so Studio still starts without a key.
+- 2026-10-31: `.env.example` defaults to `zai/glm-5.3-flash`, the user's preferred low-cost model; Claude stays documented for deeper analysis.
 - 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
 
 ## Open Questions
 
-- **No provider API key available for the live smoke test.** No `ANTHROPIC_API_KEY` (or other provider key) is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: add a key to `.env` and run the README's Smoke test steps; no code change is expected.
+- **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` in `.env` (the user plans to use GLM 5.3 Flash or DeepSeek) and run the README's Smoke test steps; no code change is expected.
 
 ## Not tested
 

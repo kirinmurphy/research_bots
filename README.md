@@ -5,7 +5,7 @@ An experiment in specialized research agents. The first agent, the **Knowledge R
 ## Prerequisites
 
 - Node.js 22.13 or later (`engines` in `package.json`).
-- An API key for the model provider you choose.
+- An API key for the model provider you choose (for example Z.ai, DeepSeek, or Anthropic).
 
 Installed versions at setup:
 
@@ -30,10 +30,16 @@ Copy `.env.example` to `.env` and fill in real values. `.env` is ignored by Git.
 
 | Variable | Meaning |
 | --- | --- |
-| `KNOWLEDGE_RESEARCHER_MODEL` | The researcher's model, as a Mastra model-router string `provider/model-name`, for example `anthropic/claude-sonnet-5-5`. Required: startup fails with an error naming this variable when it is missing. |
-| `ANTHROPIC_API_KEY` | Key for the provider in the model string. Another provider uses Mastra's standard variable for it, such as `OPENAI_API_KEY`. |
+| `KNOWLEDGE_RESEARCHER_MODEL` | The researcher's model, as a Mastra model-router string `provider/model-name`. Required: startup fails with an error naming this variable when it is missing or malformed. |
+| `KNOWLEDGE_RESEARCHER_API_KEY` | API key for whichever provider the model names. When unset, Mastra falls back to that provider's standard variable, such as `ZHIPU_API_KEY`. |
 
-Changing model provider means changing these two values; no code changes.
+Changing provider means changing these two values; no code changes and no variable renames. Each agent has its own pair, so one agent can run on a cheap model while another uses a stronger one.
+
+| Provider | Example model string |
+| --- | --- |
+| Z.ai (GLM) | `zai/glm-5.3-flash` |
+| DeepSeek | `deepseek/deepseek-v4-flash` |
+| Anthropic | `anthropic/claude-sonnet-5-5` |
 
 ## Run Studio
 

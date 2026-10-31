@@ -30,16 +30,36 @@ export function loadInstructions(definition: Pick<AgentDefinition, "instructions
   return readFileSync(join(projectRoot, definition.instructionsPath), "utf8");
 }
 
-/** Returns the agent's Mastra model-router string, or throws naming the variable to set. */
+export interface ModelSetting {
+  /** Model-router id, `provider/model-name`. */
+  id: `${string}/${string}`;
+  /** Absent when the agent's key variable is unset; the provider's standard key variable then applies. */
+  apiKey?: string;
+}
+
+/**
+ * Reads the agent's model and API key from its two variables, so switching
+ * provider changes only their values. Throws naming the model variable when
+ * it is missing or not `provider/model-name`.
+ */
 export function resolveModel(
-  definition: Pick<AgentDefinition, "modelEnvVar">,
+  definition: Pick<AgentDefinition, "modelEnvVar" | "apiKeyEnvVar">,
   env: Record<string, string | undefined>,
-): string {
-  const model = env[definition.modelEnvVar]?.trim();
-  if (!model) {
+): ModelSetting {
+  const id = env[definition.modelEnvVar]?.trim();
+  if (!id) {
     throw new Error(
       `${definition.modelEnvVar} is not set. Set it to a Mastra model string (provider/model-name), for example in .env.`,
     );
   }
-  return model;
+  if (!isModelRouterId(id)) {
+    throw new Error(`${definition.modelEnvVar} must be provider/model-name, got "${id}".`);
+  }
+  const apiKey = env[definition.apiKeyEnvVar]?.trim();
+  return apiKey ? { id, apiKey } : { id };
+}
+
+function isModelRouterId(value: string): value is ModelSetting["id"] {
+  const slash = value.indexOf("/");
+  return slash > 0 && slash < value.length - 1;
 }

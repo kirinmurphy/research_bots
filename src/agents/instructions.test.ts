@@ -8,7 +8,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import { findProjectRoot, loadInstructions, resolveModel } from "./instructions";
 
 const fixtures = fileURLToPath(new URL("./__fixtures__/", import.meta.url));
-const definition = { instructionsPath: "agents/a/AGENT.md", modelEnvVar: "TEST_AGENT_MODEL" };
+const definition = {
+  instructionsPath: "agents/a/AGENT.md",
+  modelEnvVar: "TEST_AGENT_MODEL",
+  apiKeyEnvVar: "TEST_AGENT_API_KEY",
+};
 
 describe("loadInstructions", () => {
   it("returns the AGENT.md text under the project root", () => {
@@ -21,8 +25,28 @@ describe("loadInstructions", () => {
 });
 
 describe("resolveModel", () => {
-  it("returns the model string from the definition's variable", () => {
-    expect(resolveModel(definition, { TEST_AGENT_MODEL: "anthropic/some-model" })).toBe("anthropic/some-model");
+  it("returns the model id and API key from the definition's two variables", () => {
+    expect(resolveModel(definition, { TEST_AGENT_MODEL: "zai/some-model", TEST_AGENT_API_KEY: "key-1" })).toEqual({
+      id: "zai/some-model",
+      apiKey: "key-1",
+    });
+  });
+
+  it("switches provider by changing values only", () => {
+    expect(
+      resolveModel(definition, { TEST_AGENT_MODEL: "deepseek/other-model", TEST_AGENT_API_KEY: "key-2" }),
+    ).toEqual({ id: "deepseek/other-model", apiKey: "key-2" });
+  });
+
+  it.each([{ TEST_AGENT_MODEL: "zai/some-model" }, { TEST_AGENT_MODEL: "zai/some-model", TEST_AGENT_API_KEY: " " }])(
+    "omits the API key when its variable is unset or blank (%o)",
+    (env) => {
+      expect(resolveModel(definition, env)).toEqual({ id: "zai/some-model" });
+    },
+  );
+
+  it.each(["some-model", "zai/", "/some-model"])("throws naming the variable for a malformed id (%s)", (id) => {
+    expect(() => resolveModel(definition, { TEST_AGENT_MODEL: id })).toThrow(/TEST_AGENT_MODEL must be/);
   });
 
   it.each([{}, { TEST_AGENT_MODEL: "" }, { TEST_AGENT_MODEL: "  " }])(
