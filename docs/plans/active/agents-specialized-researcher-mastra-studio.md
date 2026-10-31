@@ -54,7 +54,7 @@ This plan is the root of the backlog. Later plans build on what it creates:
 
 | Switch | Handled by | Cost of switching |
 | --- | --- | --- |
-| Model provider (for example GLM to Claude) | Mastra's model router, reading a `provider/model-name` string | Change the values of `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` |
+| Model provider (for example GLM to Claude) | Mastra's model router, reading a `provider/model-name` string | Change the values of `KNOWLEDGE_RESEARCHER_MODEL`, `KNOWLEDGE_RESEARCHER_API_KEY`, and, for an unlisted provider, `KNOWLEDGE_RESEARCHER_MODEL_URL` |
 | Agent framework (for example Mastra to another SDK) | The thin agent layer in this plan | Rewrite `src/mastra/` and any workflows; `src/agents/` and domain code stay unchanged |
 
 ### Ownership boundary
@@ -119,7 +119,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Model configuration
 
-The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes two values and renames nothing; when that variable is unset, Mastra's standard variable for the provider applies. A missing or malformed model setting fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
+The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for the provider applies. An optional `KNOWLEDGE_RESEARCHER_MODEL_URL` points the agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. A missing or malformed model setting, or an endpoint that is not an http(s) URL, fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
 
 ### Tooling decisions
 
@@ -143,7 +143,7 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 - [x] Create `src/agents/` with the agent definition, the `AgentRunner` type, and the instruction and model loaders, with no Mastra imports.
 - [x] Write `agents/knowledge-researcher/AGENT.md`; build and register the Mastra agent from its definition in `src/mastra/`.
 - [x] Implement the Mastra-backed `AgentRunner` as a direct delegation to the registered agent.
-- [x] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` with placeholder values.
+- [x] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL`, `KNOWLEDGE_RESEARCHER_API_KEY`, and the optional `KNOWLEDGE_RESEARCHER_MODEL_URL` with placeholder values.
 - [x] Add the Vitest tests listed under Validation.
 - [ ] (Blocked: provider API key) Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
 - [ ] (Blocked: provider API key) Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
@@ -163,7 +163,7 @@ The smoke-test record lists the date, Mastra version, model string, the prompt, 
 | --- | --- |
 | Instructions come from `AGENT.md` | Vitest: the instruction loader returns a fixture file's text, and two different fixture files produce two different results |
 | Missing model fails clearly | Vitest: resolving the model without `KNOWLEDGE_RESEARCHER_MODEL`, or with a malformed value, throws an error naming the variable |
-| One key variable for any provider | Vitest: the model id and key come from the agent's two variables, and an unset key is omitted so the provider's standard variable applies |
+| One set of variables for any provider | Vitest: the model id, key, and optional endpoint come from the agent's variables; an unset key or endpoint is omitted; a non-http(s) endpoint throws naming the variable |
 | Runner delegates to Mastra | Vitest: the Mastra runner, given a `Mastra` instance whose agent returns a canned response, returns that text for the agent's id and rejects an unknown id; no model is called |
 | `src/agents/` is framework-free | `grep -rn "@mastra" src/agents` prints nothing |
 | Editing `AGENT.md` changes the agent | Manual: the before/after smoke-test responses differ |
@@ -206,6 +206,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: Studio traces use LibSQL storage at `<project root>/mastra.db` plus `Observability` with `MastraStorageExporter` and `SensitiveDataFilter`. Mastra's quickstart also adds DuckDB, which only adds metrics; the platform exporter sends data off-machine. Both left out as beyond the minimum.
 - 2026-10-31: The runner test stubs the model with Mastra's own `createMockModel` from `@mastra/core/test-utils/llm-mock` (v2), registered on a real `Mastra` instance, so the delegation runs end to end with no network call.
 - 2026-10-31: User decision: each agent reads its key from a provider-neutral variable (`KNOWLEDGE_RESEARCHER_API_KEY`) next to its model variable, so switching provider changes values, not variable names. Supersedes the earlier "provider's standard variable" design. The pair is per agent, not shared, so a later agent can use a different provider. Mastra receives `{ id, apiKey }`; a stubbed-`fetch` probe showed the key reaching z.ai, DeepSeek, and Anthropic endpoints with no provider variables set. An unset key falls back to the provider's standard variable rather than failing, so Studio still starts without a key.
+- 2026-10-31: User decision: an optional per-agent `KNOWLEDGE_RESEARCHER_MODEL_URL` covers OpenAI-compatible providers the router does not list (Nous Portal), so no provider needs code changes. A stubbed-`fetch` probe showed that with a URL set, Mastra posts to `<url>/chat/completions`, treats the id's first segment as a label, and sends the rest, slashes included, as the model name; without a URL, listed providers such as `opencode` keep their registry endpoint.
 - 2026-10-31: `.env.example` defaults to `zai/glm-5.3-flash`, the user's preferred low-cost model; Claude stays documented for deeper analysis.
 - 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
 

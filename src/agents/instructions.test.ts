@@ -12,6 +12,7 @@ const definition = {
   instructionsPath: "agents/a/AGENT.md",
   modelEnvVar: "TEST_AGENT_MODEL",
   apiKeyEnvVar: "TEST_AGENT_API_KEY",
+  modelUrlEnvVar: "TEST_AGENT_MODEL_URL",
 };
 
 describe("loadInstructions", () => {
@@ -38,12 +39,31 @@ describe("resolveModel", () => {
     ).toEqual({ id: "deepseek/other-model", apiKey: "key-2" });
   });
 
-  it.each([{ TEST_AGENT_MODEL: "zai/some-model" }, { TEST_AGENT_MODEL: "zai/some-model", TEST_AGENT_API_KEY: " " }])(
-    "omits the API key when its variable is unset or blank (%o)",
+  it.each([
+    { TEST_AGENT_MODEL: "zai/some-model" },
+    { TEST_AGENT_MODEL: "zai/some-model", TEST_AGENT_API_KEY: " ", TEST_AGENT_MODEL_URL: " " },
+  ])(
+    "omits the API key and endpoint when their variables are unset or blank (%o)",
     (env) => {
       expect(resolveModel(definition, env)).toEqual({ id: "zai/some-model" });
     },
   );
+
+  it("adds the endpoint for a provider Mastra does not list", () => {
+    expect(
+      resolveModel(definition, {
+        TEST_AGENT_MODEL: "nous/z-ai/some-model",
+        TEST_AGENT_API_KEY: "key-3",
+        TEST_AGENT_MODEL_URL: "https://inference.example.test/v1",
+      }),
+    ).toEqual({ id: "nous/z-ai/some-model", apiKey: "key-3", url: "https://inference.example.test/v1" });
+  });
+
+  it.each(["not a url", "ftp://inference.example.test/v1"])("throws naming the variable for a bad endpoint (%s)", (url) => {
+    expect(() => resolveModel(definition, { TEST_AGENT_MODEL: "nous/some-model", TEST_AGENT_MODEL_URL: url })).toThrow(
+      /TEST_AGENT_MODEL_URL must be/,
+    );
+  });
 
   it.each(["some-model", "zai/", "/some-model"])("throws naming the variable for a malformed id (%s)", (id) => {
     expect(() => resolveModel(definition, { TEST_AGENT_MODEL: id })).toThrow(/TEST_AGENT_MODEL must be/);

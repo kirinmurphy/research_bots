@@ -31,19 +31,25 @@ export function loadInstructions(definition: Pick<AgentDefinition, "instructions
 }
 
 export interface ModelSetting {
-  /** Model-router id, `provider/model-name`. */
+  /**
+   * `provider/model-name`. With `url` set, `provider` is only a label and
+   * everything after the first slash is sent to the endpoint as the model name.
+   */
   id: `${string}/${string}`;
   /** Absent when the agent's key variable is unset or blank; the provider's standard key variable then applies. */
   apiKey?: string;
+  /** OpenAI-compatible base URL; absent means the provider's own endpoint from Mastra's registry. */
+  url?: string;
 }
 
 /**
- * Reads the agent's model and API key from its two variables, so switching
- * provider changes only their values. Throws naming the model variable when
- * it is missing or not `provider/model-name`.
+ * Reads the agent's model, API key, and optional endpoint from its variables,
+ * so switching provider, including to one Mastra does not list, changes only
+ * their values. Throws naming the variable when the model is missing or not
+ * `provider/model-name`, or the endpoint is not an http(s) URL.
  */
 export function resolveModel(
-  definition: Pick<AgentDefinition, "modelEnvVar" | "apiKeyEnvVar">,
+  definition: Pick<AgentDefinition, "modelEnvVar" | "apiKeyEnvVar" | "modelUrlEnvVar">,
   env: Record<string, string | undefined>,
 ): ModelSetting {
   const id = env[definition.modelEnvVar]?.trim();
@@ -56,7 +62,20 @@ export function resolveModel(
     throw new Error(`${definition.modelEnvVar} must be provider/model-name, got "${id}".`);
   }
   const apiKey = env[definition.apiKeyEnvVar]?.trim();
-  return apiKey ? { id, apiKey } : { id };
+  const url = env[definition.modelUrlEnvVar]?.trim();
+  if (url && !isHttpUrl(url)) {
+    throw new Error(`${definition.modelUrlEnvVar} must be an http(s) URL, got "${url}".`);
+  }
+  return { id, ...(apiKey && { apiKey }), ...(url && { url }) };
+}
+
+function isHttpUrl(value: string): boolean {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 function isModelRouterId(value: string): value is ModelSetting["id"] {

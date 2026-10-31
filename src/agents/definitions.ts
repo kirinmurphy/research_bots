@@ -7,6 +7,8 @@ export interface AgentDefinition {
   modelEnvVar: string;
   /** Environment variable holding the API key for whichever provider `modelEnvVar` names. */
   apiKeyEnvVar: string;
+  /** Environment variable holding an optional OpenAI-compatible endpoint, for providers Mastra does not list. */
+  modelUrlEnvVar: string;
 }
 
 export const knowledgeResearcher = {
@@ -15,4 +17,5 @@ export const knowledgeResearcher = {
   instructionsPath: "agents/knowledge-researcher/AGENT.md",
   modelEnvVar: "KNOWLEDGE_RESEARCHER_MODEL",
   apiKeyEnvVar: "KNOWLEDGE_RESEARCHER_API_KEY",
+  modelUrlEnvVar: "KNOWLEDGE_RESEARCHER_MODEL_URL",
 } as const satisfies AgentDefinition;

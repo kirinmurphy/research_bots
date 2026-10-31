@@ -31,15 +31,20 @@ Copy `.env.example` to `.env` and fill in real values. `.env` is ignored by Git.
 | Variable | Meaning |
 | --- | --- |
 | `KNOWLEDGE_RESEARCHER_MODEL` | The researcher's model, as a Mastra model-router string `provider/model-name`. Required: startup fails with an error naming this variable when it is missing or malformed. |
-| `KNOWLEDGE_RESEARCHER_API_KEY` | API key for whichever provider the model names. When unset, Mastra falls back to that provider's standard variable, such as `ZHIPU_API_KEY`. |
+| `KNOWLEDGE_RESEARCHER_API_KEY` | API key for whichever provider serves the model. When unset, Mastra falls back to that provider's standard variable, such as `ZHIPU_API_KEY`. |
+| `KNOWLEDGE_RESEARCHER_MODEL_URL` | Optional. An OpenAI-compatible base URL, for providers Mastra does not list. With it set, the part of the model string before the first slash is only a label, and the rest is sent as the model name. |
 
-Changing provider means changing these two values; no code changes and no variable renames. Each agent has its own pair, so one agent can run on a cheap model while another uses a stronger one.
+Changing provider means changing these values; no code changes and no variable renames. Each agent has its own set, so one agent can run on a cheap model while another uses a stronger one.
 
-| Provider | Example model string |
-| --- | --- |
-| Z.ai (GLM) | `zai/glm-5.3-flash` |
-| DeepSeek | `deepseek/deepseek-v4-flash` |
-| Anthropic | `anthropic/claude-sonnet-5-5` |
+| Provider | `…_MODEL` | `…_MODEL_URL` |
+| --- | --- | --- |
+| Z.ai (GLM) | `zai/glm-5.3-flash` | unset |
+| DeepSeek | `deepseek/deepseek-v4-flash` | unset |
+| OpenCode | `opencode/glm-5.3-flash` | unset |
+| Anthropic | `anthropic/claude-sonnet-5-5` | unset |
+| Nous Portal | `nous/<model name from Nous's model list>` | `https://inference-api.nousresearch.com/v1` (confirm in your Nous dashboard) |
+
+A provider counts as listed when its `provider/model-name` appears in Mastra's model router; the [Mastra models page](https://mastra.ai/models) lists them.
 
 ## Run Studio
 
