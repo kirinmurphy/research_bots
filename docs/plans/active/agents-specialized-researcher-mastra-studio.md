@@ -231,6 +231,8 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] Review > Verification still showed the 11-test gate and a clean pass that predates the API key change — fixed (record updated with pass 4)
 - [x] Docs said an unset key falls back to the provider's standard variable even with a custom endpoint; Mastra sends no key then — fixed (cb17c20)
 - [x] README and plan described a definition without its key and endpoint variables — fixed (cb17c20)
+- [x] The plan's Model configuration section still claimed a key fallback with a custom endpoint — fixed (d722f91)
+- [x] The trace Not tested entry listed a check an agent can run; trace storage now checked with the mock model and the entry narrowed to the Studio page — fixed (d722f91)
 - [ ] Fail at startup when an endpoint is set without a key? — escalated, see Open Questions
 
 ### Verification
@@ -242,6 +244,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 4 (fresh-context subagent) on dcecede, the API key change: one `fix` finding in this record, fixed.
 - Validation pass 5 (fresh-context subagent): clean at 8017b9a.
 - Validation pass 6 (fresh-context subagent) on cfe64fa, the endpoint variable: two `fix` findings, fixed (cb17c20); one `escalate`.
+- Validation pass 7 (fresh-context subagent) at 87f1cbf: two `fix` findings in the plan record, fixed (d722f91).
 
 ## References
 
