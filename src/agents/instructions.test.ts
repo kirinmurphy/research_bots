@@ -1,9 +1,9 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { findProjectRoot, loadInstructions, resolveModel } from "./instructions";
 
@@ -34,8 +34,18 @@ describe("resolveModel", () => {
 });
 
 describe("findProjectRoot", () => {
+  const tempDirs: string[] = [];
+  const makeTempDir = (prefix: string) => {
+    const dir = mkdtempSync(join(tmpdir(), prefix));
+    tempDirs.push(dir);
+    return dir;
+  };
+  afterEach(() => {
+    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  });
+
   it("skips a nested package.json without agents/, as in mastra dev's bundle directory", () => {
-    const root = mkdtempSync(join(tmpdir(), "project-root-"));
+    const root = makeTempDir("project-root-");
     writeFileSync(join(root, "package.json"), "{}");
     mkdirSync(join(root, "agents"));
     const nested = join(root, "src", "mastra", "public");
@@ -46,6 +56,6 @@ describe("findProjectRoot", () => {
   });
 
   it("throws when no ancestor is a project root", () => {
-    expect(() => findProjectRoot(mkdtempSync(join(tmpdir(), "no-root-")))).toThrow(/No project root/);
+    expect(() => findProjectRoot(makeTempDir("no-root-"))).toThrow(/No project root/);
   });
 });

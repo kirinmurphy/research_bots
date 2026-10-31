@@ -25,6 +25,6 @@ describe("createMastraAgentRunner", () => {
   it("rejects an unknown agent id", async () => {
     const runner = createMastraAgentRunner(mastraWithCannedAgent("Canned answer."));
 
-    await expect(runner.generate("missing-agent", "Any prompt")).rejects.toThrow();
+    await expect(runner.generate("missing-agent", "Any prompt")).rejects.toThrow(/missing-agent/);
   });
 });
