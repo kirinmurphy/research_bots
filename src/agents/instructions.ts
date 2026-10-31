@@ -7,10 +7,11 @@ import type { AgentDefinition } from "./definitions";
  * Finds the project root by walking up from `startDir` to the nearest
  * directory holding both `package.json` and `agents/`.
  *
- * `mastra dev` runs bundled code from `.mastra/output` with the working
- * directory set inside `src/mastra/`, so neither the module location nor the
- * working directory is the project root. `.mastra/output` has its own
- * `package.json`, which is why `agents/` is part of the marker.
+ * Mastra runs bundled code from `.mastra/output`, so the module location is
+ * never the project root, and the working directory is not either:
+ * `mastra dev` sets it to `src/mastra/public`, `mastra start` to
+ * `.mastra/output`. That folder has its own `package.json`, which is why
+ * `agents/` is part of the marker.
  */
 export function findProjectRoot(startDir: string = process.cwd()): string {
   let dir = resolve(startDir);

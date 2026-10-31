@@ -45,7 +45,7 @@ Studio opens at <http://localhost:4111>. The **Agents** page lists the Knowledge
 
 The agent's identity is `agents/knowledge-researcher/AGENT.md`. It is read once when the server starts, so **restart `npm run dev` after editing it**.
 
-Studio stores threads and traces in `mastra.db` at the project root (ignored by Git). Delete it to start fresh.
+Studio stores traces in `mastra.db` at the project root (ignored by Git). Delete it to start fresh.
 
 ## Checks
 

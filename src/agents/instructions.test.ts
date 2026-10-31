@@ -44,15 +44,25 @@ describe("findProjectRoot", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
   });
 
-  it("skips a nested package.json without agents/, as in mastra dev's bundle directory", () => {
+  it("skips the bundle's own package.json, as when mastra start runs from .mastra/output", () => {
     const root = makeTempDir("project-root-");
     writeFileSync(join(root, "package.json"), "{}");
     mkdirSync(join(root, "agents"));
-    const nested = join(root, "src", "mastra", "public");
-    mkdirSync(nested, { recursive: true });
-    writeFileSync(join(root, "src", "package.json"), "{}");
+    const bundle = join(root, ".mastra", "output");
+    mkdirSync(bundle, { recursive: true });
+    writeFileSync(join(bundle, "package.json"), "{}");
 
-    expect(findProjectRoot(nested)).toBe(root);
+    expect(findProjectRoot(bundle)).toBe(root);
+  });
+
+  it("walks up from mastra dev's working directory to the project root", () => {
+    const root = makeTempDir("project-root-");
+    writeFileSync(join(root, "package.json"), "{}");
+    mkdirSync(join(root, "agents"));
+    const devCwd = join(root, "src", "mastra", "public");
+    mkdirSync(devCwd, { recursive: true });
+
+    expect(findProjectRoot(devCwd)).toBe(root);
   });
 
   it("throws when no ancestor is a project root", () => {
