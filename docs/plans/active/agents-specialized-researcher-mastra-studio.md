@@ -1,7 +1,7 @@
 ---
 id: io239qp2
 priority: none
-next_action: Scaffold the Mastra app at the repository root, strip the example agent and tools, and add a Vitest test script.
+next_action: Add a provider key to .env, run the fixed smoke-test prompt in Studio before and after one AGENT.md edit, and fill in docs/smoke-tests/knowledge-researcher-studio.md.
 blocked_by: []
 depends_on: []
 related: ["12v3ljqo", "w6j1t8pq", "pkxml601", "y9gc5tc0"]
@@ -137,17 +137,17 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 
 ## Implementation checklist
 
-- [ ] Scaffold a TypeScript Mastra project with `npm create mastra@latest`, move it to the repository root, and record the installed Mastra package versions and Node requirement in `README.md`.
-- [ ] Remove the scaffold's example agents, tools, and workflows so the Knowledge Researcher is the only registered agent and has no tools.
-- [ ] Extend `.gitignore`; add `typecheck` and `test` (Vitest) scripts; confirm both run on the empty project.
-- [ ] Create `src/agents/` with the agent definition, the `AgentRunner` type, and the instruction and model loaders, with no Mastra imports.
-- [ ] Write `agents/knowledge-researcher/AGENT.md`; build and register the Mastra agent from its definition in `src/mastra/`.
-- [ ] Implement the Mastra-backed `AgentRunner` as a direct delegation to the registered agent.
-- [ ] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL` and the provider key name with placeholder values.
-- [ ] Add the Vitest tests listed under Validation.
-- [ ] Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
-- [ ] Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
-- [ ] Write the README setup, environment, agent-layer, and smoke-test sections.
+- [x] Scaffold a TypeScript Mastra project with `npm create mastra@latest`, move it to the repository root, and record the installed Mastra package versions and Node requirement in `README.md`.
+- [x] Remove the scaffold's example agents, tools, and workflows so the Knowledge Researcher is the only registered agent and has no tools.
+- [x] Extend `.gitignore`; add `typecheck` and `test` (Vitest) scripts; confirm both run on the empty project.
+- [x] Create `src/agents/` with the agent definition, the `AgentRunner` type, and the instruction and model loaders, with no Mastra imports.
+- [x] Write `agents/knowledge-researcher/AGENT.md`; build and register the Mastra agent from its definition in `src/mastra/`.
+- [x] Implement the Mastra-backed `AgentRunner` as a direct delegation to the registered agent.
+- [x] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL` and the provider key name with placeholder values.
+- [x] Add the Vitest tests listed under Validation.
+- [ ] (Blocked: provider API key) Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
+- [ ] (Blocked: provider API key) Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
+- [x] Write the README setup, environment, agent-layer, and smoke-test sections.
 
 Fixed smoke-test prompt:
 
@@ -199,6 +199,22 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: Instructions load once at agent initialization; a restart picks up `AGENT.md` edits.
 - 2026-10-31: Model set by `KNOWLEDGE_RESEARCHER_MODEL` as a Mastra model-router string; no default model is hard-coded.
 - 2026-10-31: A thin `AgentRunner` interface and framework-free agent definitions in `src/agents/` keep the agent framework replaceable. The user chose this over definitions-only so domain code can be tested with a fake runner.
+
+- 2026-10-31: Mastra installed at the newest releases older than 7 days (`@mastra/core` 1.79.0, `mastra` 1.35.0, `@mastra/libsql` 1.27.0, `@mastra/observability` 1.21.0) because npm's `min-release-age = 7` refuses the 1.81.0 the scaffold pins. User decision: install the newest allowed versions and upgrade later rather than bypass the age gate.
+- 2026-10-31: Scaffolded with `create-mastra --empty --no-install` rather than the default template. The default template's install fails under the age gate and brings example agents and tools that this plan removes; the empty scaffold has none. User approved.
+- 2026-10-31: Project root found by walking up from the working directory to the nearest folder with both `package.json` and `agents/`. Observed under `mastra dev`: the working directory is `src/mastra/public` and the bundle runs from `.mastra/output`, which has its own `package.json`, so neither a module-relative path nor `package.json` alone finds the root. Alternatives: module-relative path (breaks under bundling), an explicit env variable (one more setting to get wrong).
+- 2026-10-31: Studio traces use LibSQL storage at `<project root>/mastra.db` plus `Observability` with `MastraStorageExporter` and `SensitiveDataFilter`. Mastra's quickstart also adds DuckDB, which only adds metrics; the platform exporter sends data off-machine. Both left out as beyond the minimum.
+- 2026-10-31: The runner test stubs the model with Mastra's own `createMockModel` from `@mastra/core/test-utils/llm-mock` (v2), registered on a real `Mastra` instance, so the delegation runs end to end with no network call.
+- 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
+
+## Open Questions
+
+- **No provider API key available for the live smoke test.** No `ANTHROPIC_API_KEY` (or other provider key) is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: add a key to `.env` and run the README's Smoke test steps; no code change is expected.
+
+## Not tested
+
+- [ ] Editing `AGENT.md` changes the researcher's answer to the fixed prompt. Needs two live model calls in Studio with a provider key.
+- [ ] A Studio run produces a trace that is visible under Traces. Storage and the exporter are configured, but no model call has run.
 
 ## References
 
