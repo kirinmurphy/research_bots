@@ -119,7 +119,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Model configuration
 
-The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for the provider applies. An optional `KNOWLEDGE_RESEARCHER_MODEL_URL` points the agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. A missing or malformed model setting, or an endpoint that is not an http(s) URL, fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
+The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for a listed provider applies (with a custom endpoint set there is no fallback, so the key is needed). An optional `KNOWLEDGE_RESEARCHER_MODEL_URL` points the agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. A missing or malformed model setting, or an endpoint that is not an http(s) URL, fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
 
 ### Tooling decisions
 
@@ -218,7 +218,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 ## Not tested
 
 - [ ] Editing `AGENT.md` changes the researcher's answer to the fixed prompt. Needs two live model calls in Studio with a provider key.
-- [ ] A Studio run produces a trace that is visible under Traces. Storage and the exporter are configured, but no model call has run.
+- [ ] A live-model run appears on Studio's Traces page. Trace storage itself is checked with Mastra's mock model (see the smoke-test record); seeing a real run in the Studio page needs a provider key.
 
 ## Review
 
