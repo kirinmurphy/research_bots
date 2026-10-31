@@ -235,6 +235,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 2 (fresh-context subagent): three `fix` findings, fixed (8eba8cc).
 - Validation pass 3 (fresh-context subagent): clean at ea04eb6.
 - Validation pass 4 (fresh-context subagent) on dcecede, the API key change: one `fix` finding in this record, fixed.
+- Validation: clean on pass 5 at 8017b9a (fresh-context subagent).
 
 ## References
 
