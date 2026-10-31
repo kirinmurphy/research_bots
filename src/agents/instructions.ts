@@ -36,7 +36,10 @@ export interface ModelSetting {
    * everything after the first slash is sent to the endpoint as the model name.
    */
   id: `${string}/${string}`;
-  /** Absent when the agent's key variable is unset or blank; the provider's standard key variable then applies. */
+  /**
+   * Absent when the agent's key variable is unset or blank. Mastra then uses a
+   * listed provider's standard key variable; with `url` set it sends no key.
+   */
   apiKey?: string;
   /** OpenAI-compatible base URL; absent means the provider's own endpoint from Mastra's registry. */
   url?: string;
