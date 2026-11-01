@@ -119,7 +119,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Model configuration
 
-The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for a listed provider applies (with a custom endpoint set there is no fallback, so the key is needed). An optional `KNOWLEDGE_RESEARCHER_MODEL_URL` points the agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. A missing or malformed model setting, or an endpoint that is not an http(s) URL, fails at startup with an error that names the variable. No keys appear in source or in `.env.example`.
+The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for a listed provider applies (with a custom endpoint set there is no fallback, so the key is required). An optional `KNOWLEDGE_RESEARCHER_MODEL_URL` points the agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. Startup fails with an error naming the variable when the model setting is missing or malformed, names a provider Mastra's router does not list (checked in `src/mastra/` only when no endpoint is set), when the endpoint is not an http(s) URL, or when an endpoint is set without a key. No keys appear in source or in `.env.example`.
 
 ### Tooling decisions
 
@@ -163,7 +163,8 @@ The smoke-test record lists the date, Mastra version, model string, the prompt, 
 | --- | --- |
 | Instructions come from `AGENT.md` | Vitest: the instruction loader returns a fixture file's text, and two different fixture files produce two different results |
 | Missing model fails clearly | Vitest: resolving the model without `KNOWLEDGE_RESEARCHER_MODEL`, or with a malformed value, throws an error naming the variable |
-| One set of variables for any provider | Vitest: the model id, key, and optional endpoint come from the agent's variables; an unset key or endpoint is omitted; a non-http(s) endpoint throws naming the variable |
+| One set of variables for any provider | Vitest: the model id, key, and optional endpoint come from the agent's variables; an unset key or endpoint is omitted; a non-http(s) endpoint, or an endpoint without a key, throws naming the variable |
+| Unknown provider fails clearly | Vitest: a provider Mastra's router does not list throws naming the variable and provider; listed providers, unlisted model names, and any label with an endpoint pass |
 | Runner delegates to Mastra | Vitest: the Mastra runner, given a `Mastra` instance whose agent returns a canned response, returns that text for the agent's id and rejects an unknown id; no model is called |
 | `src/agents/` is framework-free | `grep -rn "@mastra" src/agents` prints nothing |
 | Editing `AGENT.md` changes the agent | Manual: the before/after smoke-test responses differ |
@@ -209,11 +210,11 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: User decision: an optional per-agent `KNOWLEDGE_RESEARCHER_MODEL_URL` covers OpenAI-compatible providers the router does not list (Nous Portal), so no provider needs code changes. A stubbed-`fetch` probe showed that with a URL set, Mastra posts to `<url>/chat/completions`, treats the id's first segment as a label, and sends the rest, slashes included, as the model name; without a URL, listed providers such as `opencode` keep their registry endpoint.
 - 2026-10-31: `.env.example` defaults to `zai/glm-5.3-flash`, the user's preferred low-cost model; Claude stays documented for deeper analysis.
 - 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
+- 2026-11-01: User decision: startup fails when an endpoint is set without a key (resolving the escalated question; the cost is that a keyless local server needs a placeholder key), and when the model names a provider Mastra's router does not list. The provider check sits in `src/mastra/model-config.ts` because it reads Mastra's registry (`getProviderConfig` from `@mastra/core/llm`); `src/agents/` stays framework-free. Only the provider is checked, not the model name, because the router's model lists trail new releases and a strict check would block new models. With an endpoint set the provider is a label, so it is not checked.
 
 ## Open Questions
 
 - **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` in `.env` (the user plans to use GLM 5.3 Flash or DeepSeek) and run the README's Smoke test steps; no code change is expected.
-- **Should a missing key fail at startup when a custom endpoint is set?** (Non-blocking.) With `KNOWLEDGE_RESEARCHER_MODEL_URL` set and no key, Mastra sends requests with no key, so the mistake shows up as an auth error on the first prompt rather than at startup. Options: (a) fail at startup naming the key variable: catches the mistake early, but rejects keyless local servers such as Ollama; (b) keep it documented only (current): works with keyless servers, but the error comes later. Recommendation: (a), since every hosted provider needs a key, with a keyless local server handled by setting any placeholder key. Not decided autonomously because it adds a validation rule with a real tradeoff. Blocks nothing.
 
 ## Not tested
 
@@ -233,7 +234,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] README and plan described a definition without its key and endpoint variables — fixed (cb17c20)
 - [x] The plan's Model configuration section still claimed a key fallback with a custom endpoint — fixed (d722f91)
 - [x] The trace Not tested entry listed a check an agent can run; trace storage now checked with the mock model and the entry narrowed to the Studio page — fixed (d722f91)
-- [ ] Fail at startup when an endpoint is set without a key? — escalated, see Open Questions
+- [x] Fail at startup when an endpoint is set without a key? — escalated; user decided yes, implemented (see Decision log)
 
 ### Verification
 

@@ -60,9 +60,19 @@ describe("resolveModel", () => {
   });
 
   it.each(["not a url", "ftp://inference.example.test/v1"])("throws naming the variable for a bad endpoint (%s)", (url) => {
-    expect(() => resolveModel(definition, { TEST_AGENT_MODEL: "nous/some-model", TEST_AGENT_MODEL_URL: url })).toThrow(
-      /TEST_AGENT_MODEL_URL must be/,
-    );
+    expect(() =>
+      resolveModel(definition, { TEST_AGENT_MODEL: "nous/some-model", TEST_AGENT_API_KEY: "key", TEST_AGENT_MODEL_URL: url }),
+    ).toThrow(/TEST_AGENT_MODEL_URL must be/);
+  });
+
+  it.each([undefined, " "])("throws naming the key variable when an endpoint is set without a key (%o)", (apiKey) => {
+    expect(() =>
+      resolveModel(definition, {
+        TEST_AGENT_MODEL: "nous/some-model",
+        TEST_AGENT_API_KEY: apiKey,
+        TEST_AGENT_MODEL_URL: "https://inference.example.test/v1",
+      }),
+    ).toThrow("TEST_AGENT_API_KEY is required when TEST_AGENT_MODEL_URL is set.");
   });
 
   it.each(["some-model", "zai/", "/some-model"])("throws naming the variable for a malformed id (%s)", (id) => {

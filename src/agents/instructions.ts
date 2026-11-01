@@ -37,8 +37,9 @@ export interface ModelSetting {
    */
   id: `${string}/${string}`;
   /**
-   * Absent when the agent's key variable is unset or blank. Mastra then uses a
-   * listed provider's standard key variable; with `url` set it sends no key.
+   * Absent when the agent's key variable is unset or blank, and then Mastra
+   * uses the provider's standard key variable. Always present with `url`,
+   * since Mastra has no fallback for a custom endpoint.
    */
   apiKey?: string;
   /** OpenAI-compatible base URL; absent means the provider's own endpoint from Mastra's registry. */
@@ -49,7 +50,8 @@ export interface ModelSetting {
  * Reads the agent's model, API key, and optional endpoint from its variables,
  * so switching provider, including to one Mastra does not list, changes only
  * their values. Throws naming the variable when the model is missing or not
- * `provider/model-name`, or the endpoint is not an http(s) URL.
+ * `provider/model-name`, the endpoint is not an http(s) URL, or an endpoint
+ * is set without a key.
  */
 export function resolveModel(
   definition: Pick<AgentDefinition, "modelEnvVar" | "apiKeyEnvVar" | "modelUrlEnvVar">,
@@ -68,6 +70,9 @@ export function resolveModel(
   const url = env[definition.modelUrlEnvVar]?.trim();
   if (url && !isHttpUrl(url)) {
     throw new Error(`${definition.modelUrlEnvVar} must be an http(s) URL, got "${url}".`);
+  }
+  if (url && !apiKey) {
+    throw new Error(`${definition.apiKeyEnvVar} is required when ${definition.modelUrlEnvVar} is set.`);
   }
   return { id, ...(apiKey && { apiKey }), ...(url && { url }) };
 }

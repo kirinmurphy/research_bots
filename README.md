@@ -30,8 +30,8 @@ Copy `.env.example` to `.env` and fill in real values. `.env` is ignored by Git.
 
 | Variable | Meaning |
 | --- | --- |
-| `KNOWLEDGE_RESEARCHER_MODEL` | The researcher's model, as a Mastra model-router string `provider/model-name`. Required: startup fails with an error naming this variable when it is missing or malformed. |
-| `KNOWLEDGE_RESEARCHER_API_KEY` | API key for whichever provider serves the model. When unset, Mastra falls back to a listed provider's standard variable, such as `ZHIPU_API_KEY`. With `KNOWLEDGE_RESEARCHER_MODEL_URL` set there is no fallback: set this key, or requests go out unauthenticated. |
+| `KNOWLEDGE_RESEARCHER_MODEL` | The researcher's model, as a Mastra model-router string `provider/model-name`. Required: startup fails with an error naming this variable when it is missing, malformed, or names a provider Mastra does not list (unless the URL variable is set). |
+| `KNOWLEDGE_RESEARCHER_API_KEY` | API key for whichever provider serves the model. When unset, Mastra falls back to a listed provider's standard variable, such as `ZHIPU_API_KEY`. Required when `KNOWLEDGE_RESEARCHER_MODEL_URL` is set: startup fails without it, because Mastra has no fallback for a custom endpoint. |
 | `KNOWLEDGE_RESEARCHER_MODEL_URL` | Optional. An OpenAI-compatible base URL, for providers Mastra does not list. With it set, the part of the model string before the first slash is only a label, and the rest is sent as the model name. |
 
 Changing provider means changing these values; no code changes and no variable renames. Each agent has its own set, so one agent can run on a cheap model while another uses a stronger one.
@@ -75,7 +75,7 @@ Application code talks to agents through a small, project-owned layer, so the ag
 | --- | --- | --- |
 | `agents/<agent-name>/AGENT.md` | Each agent's identity, as plain Markdown | — |
 | `src/agents/` | Agent definitions (id, name, `AGENT.md` path, and the model, key, and endpoint variable names), the `AgentRunner` interface, reading `AGENT.md`, resolving the model | No |
-| `src/mastra/` | Building Mastra agents from definitions, the Mastra-backed `AgentRunner`, the `Mastra` instance with storage and tracing | Yes |
+| `src/mastra/` | Building Mastra agents from definitions, checking the model's provider against Mastra's router, the Mastra-backed `AgentRunner`, the `Mastra` instance with storage and tracing | Yes |
 
 - `AgentRunner.generate(agentId, prompt)` resolves to the response text. Domain code receives an `AgentRunner` as a parameter, so its tests can pass a fake.
 - To change frameworks, rewrite `src/mastra/`. `src/agents/` and domain code stay as they are.
