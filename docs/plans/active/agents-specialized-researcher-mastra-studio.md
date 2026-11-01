@@ -214,11 +214,11 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: `.env.example` defaults to `zai/glm-5.3-flash`, the user's preferred low-cost model; Claude stays documented for deeper analysis.
 - 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
 - 2026-11-01: User decision: startup fails when an endpoint is set without a key (resolving the escalated question; the cost is that a keyless local server needs a placeholder key), and when the model names a provider Mastra's router does not list. The provider check sits in `src/mastra/model-config.ts` because it reads Mastra's registry (`getProviderConfig` from `@mastra/core/llm`); `src/agents/` stays framework-free. Only the provider is checked, not the model name, because the router's model lists trail new releases and a strict check would block new models. With an endpoint set the provider is a label, so it is not checked.
+- 2026-11-01: User decision: keep rejecting model ids routed through Mastra's own `mastra` gateway or a custom gateway. Accepting them would depend on Mastra's non-public gateway lookup, and the user's providers (direct keys, or Nous through the URL variable) need no gateway. Gateways in the provider registry (`netlify`, `vercel`, `openrouter`) already pass.
 
 ## Open Questions
 
 - **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` in `.env` (the user plans to use GLM 5.3 Flash or DeepSeek) and run the README's Smoke test steps; no code change is expected.
-- **Accept gateway-routed model ids?** (Non-blocking.) The provider check reads Mastra's provider registry. Gateways listed there (`netlify`, `vercel`) pass, but ids routed through Mastra's own `mastra` gateway (`mastra/<provider>/<model>` with `MASTRA_GATEWAY_API_KEY`) or a custom gateway are rejected at startup. Options: (a) keep the limitation, documented in the README and code (current): only public Mastra APIs, and the URL variable covers most gateway-style endpoints; (b) accept gateway ids: needs Mastra's internal gateway lookup, which is not a public export and could change between releases. Recommendation: (a) until a plan needs a gateway. Not decided autonomously because it chooses between real alternatives. Blocks nothing.
 
 ## Not tested
 
@@ -243,7 +243,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] README implied the full model string must be listed; only the provider is checked — fixed (125de2a)
 - [x] Gateway limitation overstated: `netlify` and `vercel` gateways pass; only `mastra` and custom gateways are rejected — fixed (4a4119f)
 - [x] Plan's project layout and ownership table missed the provider check and its files — fixed (4a4119f)
-- [ ] Accept gateway-routed model ids? — escalated, see Open Questions
+- [x] Accept gateway-routed model ids? — escalated; user decided to keep rejecting them (see Decision log)
 
 ### Verification
 
