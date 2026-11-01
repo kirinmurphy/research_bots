@@ -44,7 +44,7 @@ Changing provider means changing these values; no code changes and no variable r
 | Anthropic | `anthropic/claude-sonnet-5-5` | unset |
 | Nous Portal | `nous/<model name from Nous's model list>` | `https://inference-api.nousresearch.com/v1` (confirm in your Nous dashboard) |
 
-Startup checks only the provider part against Mastra's model router, so a new model name from a listed provider works before Mastra lists it; the [Mastra models page](https://mastra.ai/models) lists the providers. Models routed through a Mastra gateway (`<gateway>/<provider>/<model>`) are rejected by this check; use the URL variable for those.
+Startup checks only the provider part against Mastra's model router, so a new model name from a listed provider works before Mastra lists it; the [Mastra models page](https://mastra.ai/models) lists the providers. Gateways in that provider list, such as `netlify` and `vercel`, pass the check; ids routed through Mastra's own `mastra` gateway or a custom gateway are rejected, so use the URL variable for those.
 
 ## Run Studio
 
