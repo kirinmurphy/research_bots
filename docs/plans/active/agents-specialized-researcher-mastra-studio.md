@@ -241,6 +241,8 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] Fail at startup when an endpoint is set without a key? — escalated; user decided yes, implemented (see Decision log)
 - [x] No test covered the agent builder applying the startup checks; added tests through `createKnowledgeResearcherAgent`, confirmed to fail with the check removed — fixed (125de2a)
 - [x] README implied the full model string must be listed; only the provider is checked — fixed (125de2a)
+- [x] Gateway limitation overstated: `netlify` and `vercel` gateways pass; only `mastra` and custom gateways are rejected — fixed (4a4119f)
+- [x] Plan's project layout and ownership table missed the provider check and its files — fixed (4a4119f)
 - [ ] Accept gateway-routed model ids? — escalated, see Open Questions
 
 ### Verification
@@ -255,6 +257,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 7 (fresh-context subagent) at 87f1cbf: two `fix` findings in the plan record, fixed (d722f91).
 - Validation pass 8 (fresh-context subagent): clean at c5ed53a.
 - Validation pass 9 (fresh-context subagent) on 65ffc5c, the startup checks: two `fix` findings, fixed (125de2a); one `escalate`.
+- Validation pass 10 (fresh-context subagent) at 1487c03: two `fix` findings, fixed (4a4119f).
 
 ## References
 
