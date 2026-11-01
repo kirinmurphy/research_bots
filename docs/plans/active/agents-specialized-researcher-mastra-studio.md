@@ -258,6 +258,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 8 (fresh-context subagent): clean at c5ed53a.
 - Validation pass 9 (fresh-context subagent) on 65ffc5c, the startup checks: two `fix` findings, fixed (125de2a); one `escalate`.
 - Validation pass 10 (fresh-context subagent) at 1487c03: two `fix` findings, fixed (4a4119f).
+- Validation: clean on pass 11 at fb6f8a0 (fresh-context subagent).
 
 ## References
 
