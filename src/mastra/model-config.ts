@@ -7,6 +7,8 @@ import type { ModelSetting } from "../agents/instructions";
  * router lists, so a typo fails at startup instead of on the first prompt.
  * With a custom endpoint the provider is only a label, so any name passes.
  * Only the provider is checked: the router's model lists trail new releases.
+ * Gateway-routed ids (`<gateway>/<provider>/<model>`) are rejected, since
+ * Mastra does not expose its gateway lookup.
  */
 export function checkModelProvider(setting: ModelSetting, modelEnvVar: string): ModelSetting {
   if (setting.url) return setting;
