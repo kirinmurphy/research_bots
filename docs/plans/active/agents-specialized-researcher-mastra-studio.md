@@ -245,6 +245,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 5 (fresh-context subagent): clean at 8017b9a.
 - Validation pass 6 (fresh-context subagent) on cfe64fa, the endpoint variable: two `fix` findings, fixed (cb17c20); one `escalate`.
 - Validation pass 7 (fresh-context subagent) at 87f1cbf: two `fix` findings in the plan record, fixed (d722f91).
+- Validation: clean on pass 8 at c5ed53a (fresh-context subagent).
 
 ## References
 
