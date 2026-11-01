@@ -236,10 +236,13 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] The plan's Model configuration section still claimed a key fallback with a custom endpoint — fixed (d722f91)
 - [x] The trace Not tested entry listed a check an agent can run; trace storage now checked with the mock model and the entry narrowed to the Studio page — fixed (d722f91)
 - [x] Fail at startup when an endpoint is set without a key? — escalated; user decided yes, implemented (see Decision log)
+- [x] No test covered the agent builder applying the startup checks; added tests through `createKnowledgeResearcherAgent`, confirmed to fail with the check removed — fixed (125de2a)
+- [x] README implied the full model string must be listed; only the provider is checked — fixed (125de2a)
+- [ ] Accept gateway-routed model ids? — escalated, see Open Questions
 
 ### Verification
 
-- Gate: `npm run typecheck && npm test` passes (2 files, 20 tests).
+- Gate: `npm run typecheck && npm test` passes (4 files, 31 tests).
 - Validation pass 1 (fresh-context subagent): one `fix` finding, fixed (5dbaca8).
 - Validation pass 2 (fresh-context subagent): three `fix` findings, fixed (8eba8cc).
 - Validation pass 3 (fresh-context subagent): clean at ea04eb6.
@@ -247,7 +250,8 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 5 (fresh-context subagent): clean at 8017b9a.
 - Validation pass 6 (fresh-context subagent) on cfe64fa, the endpoint variable: two `fix` findings, fixed (cb17c20); one `escalate`.
 - Validation pass 7 (fresh-context subagent) at 87f1cbf: two `fix` findings in the plan record, fixed (d722f91).
-- Validation: clean on pass 8 at c5ed53a (fresh-context subagent).
+- Validation pass 8 (fresh-context subagent): clean at c5ed53a.
+- Validation pass 9 (fresh-context subagent) on 65ffc5c, the startup checks: two `fix` findings, fixed (125de2a); one `escalate`.
 
 ## References
 
