@@ -215,7 +215,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
 - 2026-11-01: User decision: startup fails when an endpoint is set without a key (resolving the escalated question; the cost is that a keyless local server needs a placeholder key), and when the model names a provider Mastra's router does not list. The provider check sits in `src/mastra/model-config.ts` because it reads Mastra's registry (`getProviderConfig` from `@mastra/core/llm`); `src/agents/` stays framework-free. Only the provider is checked, not the model name, because the router's model lists trail new releases and a strict check would block new models. With an endpoint set the provider is a label, so it is not checked.
 - 2026-11-01: User decision: keep rejecting model ids routed through Mastra's own `mastra` gateway or a custom gateway. Accepting them would depend on Mastra's non-public gateway lookup, and the user's providers (direct keys, or Nous through the URL variable) need no gateway. Gateways in the provider registry (`netlify`, `vercel`, `openrouter`) already pass.
-- 2026-11-02: User decision: one provider connection (`MODEL_API_KEY`, optional `MODEL_BASE_URL`) serves every agent, and model variables are named by use case (`RESEARCH_MODEL`, `REVIEW_MODEL`, `STRATEGY_MODEL`, `CATEGORIZATION_MODEL`), so adding agents adds no new variable names. Supersedes the per-agent `KNOWLEDGE_RESEARCHER_*` variables. Code reads only `RESEARCH_MODEL` today; the other three appear in `.env.example`, commented out, until their agents exist. The planned models are GLM Flash (research), DeepSeek Flash (review, a second model family), Qwen 3.7 Flash (strategy), and Ling 3.0 Flash (bulk categorization), all through one provider such as Nous Portal. Shared names chosen over a project prefix because the project owns its `.env`.
+- 2026-11-02: User decision: one provider connection (`MODEL_API_KEY`, optional `MODEL_BASE_URL`) serves every agent, and model variables are named by use case (`RESEARCH_MODEL`, `REVIEW_MODEL`, `STRATEGY_MODEL`, `CATEGORIZATION_MODEL`), so adding agents adds no new variable names. Supersedes the per-agent `KNOWLEDGE_RESEARCHER_*` variables. Code reads only `RESEARCH_MODEL` today; the other three appear in `.env.example`, commented out, until their agents exist. The planned models are GLM Flash (research), DeepSeek Flash (review, a second model family), Qwen 3.7 Flash (strategy), and Ling 3.0 Flash (bulk categorization), all through one provider such as Nous Portal. Shared names chosen over a project prefix because the project owns its `.env`. `.env.example` now defaults to Nous Portal (`MODEL_BASE_URL` set, `RESEARCH_MODEL=nous/<GLM Flash id>`), superseding the earlier `zai/glm-5.3-flash` default.
 
 ## Open Questions
 
@@ -246,6 +246,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] Plan's project layout and ownership table missed the provider check and its files — fixed (4a4119f)
 - [x] Accept gateway-routed model ids? — escalated; user decided to keep rejecting them (see Decision log)
 - [x] Open Questions, the plan's definition description, the README agent-layer row, and the unknown-provider error still described per-agent key and endpoint variables — fixed (787c675)
+- [x] Decision log still read as if `.env.example` defaulted to `zai/glm-5.3-flash` — fixed (this commit)
 
 ### Verification
 
@@ -262,6 +263,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 10 (fresh-context subagent) at 1487c03: two `fix` findings, fixed (4a4119f).
 - Validation pass 11 (fresh-context subagent): clean at fb6f8a0.
 - Validation pass 12 (fresh-context subagent) on 6a0e066, the shared provider variables: four `fix` findings, fixed (787c675).
+- Validation pass 13 (fresh-context subagent) at f42d600: one `fix` finding in the Decision log wording, fixed; not re-validated, so the next `/plan-execute` run starts with a fresh pass before submitting.
 
 ## References
 
