@@ -1,6 +1,6 @@
 # Knowledge Researcher Studio smoke test
 
-Steps are in the README's Smoke test section.
+Follow the [Studio verification guide](../support/verify-researcher.md).
 
 ## Setup check — 2026-10-31
 

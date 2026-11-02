@@ -19,7 +19,7 @@ Create a small, standalone TypeScript application with one named Knowledge Resea
 
 This repository is a new experiment, separate from RoboRepo and youtube-transcript-cli. Mastra is the initial agent runtime, but the project owns its agent instructions, agent definitions, and domain types.
 
-Current state of the repository:
+Starting state before implementation:
 
 - It contains plan documents under `docs/plans/` and a `.gitignore` that ignores `.DS_Store`. There is no `package.json`, source code, README, or test setup.
 - No agent application has been run locally.
@@ -92,6 +92,10 @@ tsconfig.json
 .gitignore                                  (extended; it exists already)
 .env.example
 README.md
+docs/support/configuration.md
+docs/support/verify-researcher.md
+docs/internal/architecture.md
+docs/internal/development.md
 agents/knowledge-researcher/AGENT.md
 src/agents/definitions.ts
 src/agents/agent-runner.ts
@@ -118,7 +122,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Identity content
 
-`AGENT.md` is short and tells the researcher to separate four kinds of output: claims, the evidence for each claim, open questions, and recommendations. It says that unsupported statements are labeled as unverified rather than asserted.
+`AGENT.md` covers software strategies, approaches, and patterns, including specific software when relevant. It is short and tells the researcher to separate four kinds of output: claims, the evidence for each claim, open questions, and recommendations. It says that unsupported statements are labeled as unverified rather than asserted.
 
 ### Model configuration
 
@@ -140,7 +144,7 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 
 ## Implementation checklist
 
-- [x] Scaffold a TypeScript Mastra project with `npm create mastra@latest`, move it to the repository root, and record the installed Mastra package versions and Node requirement in `README.md`.
+- [x] Scaffold a TypeScript Mastra project with `npm create mastra@latest`, move it to the repository root, and record the Node requirement in `README.md` and the installed Mastra package versions in `docs/internal/development.md`.
 - [x] Remove the scaffold's example agents, tools, and workflows so the Knowledge Researcher is the only registered agent and has no tools.
 - [x] Extend `.gitignore`; add `typecheck` and `test` (Vitest) scripts; confirm both run on the empty project.
 - [x] Create `src/agents/` with the agent definition, the `AgentRunner` type, and the instruction and model loaders, with no Mastra imports.
@@ -150,7 +154,7 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 - [x] Add the Vitest tests listed under Validation.
 - [ ] (Blocked: provider API key) Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
 - [ ] (Blocked: provider API key) Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
-- [x] Write the README setup, environment, agent-layer, and smoke-test sections.
+- [x] Write the README setup and use cases, linking configuration and verification guides under `docs/support/` and architecture and development guides under `docs/internal/`.
 
 Fixed smoke-test prompt:
 
@@ -195,7 +199,9 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 
 ## Documentation impact
 
-- Create `README.md` with prerequisites (Node version), installation, environment variables, the Studio start command, the restart-after-editing-`AGENT.md` note, the agent-layer boundary (`src/agents/` versus `src/mastra/`), and the smoke-test steps.
+- Keep `README.md` focused on prerequisites, setup, primary use cases, and restarting after instruction changes.
+- Keep configuration and Studio verification steps in `docs/support/configuration.md` and `docs/support/verify-researcher.md`.
+- Keep architecture and contributor checks in `docs/internal/architecture.md` and `docs/internal/development.md`. Link all four guides from the README.
 - Create `docs/smoke-tests/knowledge-researcher-studio.md` with the recorded smoke-test result.
 
 ## Decision log
@@ -217,9 +223,14 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-11-01: User decision: keep rejecting model ids routed through Mastra's own `mastra` gateway or a custom gateway. Accepting them would depend on Mastra's non-public gateway lookup, and the user's providers (direct keys, or Nous through the URL variable) need no gateway. Gateways in the provider registry (`netlify`, `vercel`, `openrouter`) already pass.
 - 2026-11-02: User decision: one provider connection (`MODEL_API_KEY`, optional `MODEL_BASE_URL`) serves every agent, and model variables are named by use case (`RESEARCH_MODEL`, `REVIEW_MODEL`, `STRATEGY_MODEL`, `CATEGORIZATION_MODEL`), so adding agents adds no new variable names. Supersedes the per-agent `KNOWLEDGE_RESEARCHER_*` variables. Code reads only `RESEARCH_MODEL` today; the other three appear in `.env.example`, commented out, until their agents exist. The planned models are GLM Flash (research), DeepSeek Flash (review, a second model family), Qwen 3.7 Flash (strategy), and Ling 3.0 Flash (bulk categorization), all through one provider such as Nous Portal. Shared names chosen over a project prefix because the project owns its `.env`. `.env.example` now defaults to Nous Portal (`MODEL_BASE_URL` set, `RESEARCH_MODEL=nous/<GLM Flash id>`), superseding the earlier `zai/glm-5.3-flash` default.
 
+- 2026-11-02: PR feedback broadened the researcher’s scope to software strategies, approaches, and patterns, including specific software. README now owns setup and primary use cases; linked support and internal guides own configuration, manual verification, architecture, and development details.
+- 2026-11-02: Test layout remains unchanged while the user evaluates colocated unit tests versus a mirrored top-level `tests/` directory. No runtime modules or test paths were moved.
+
 ## Open Questions
 
-- **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `MODEL_API_KEY`, `MODEL_BASE_URL`, and `RESEARCH_MODEL` in `.env` (the user plans to use GLM Flash through Nous Portal) and run the README's Smoke test steps; no code change is expected.
+- **Test organization preference pending.** User requested pros and cons before choosing. Recommendation: keep unit tests beside source and consider a separate integration-test folder when cross-module workflows exist.
+
+- **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `MODEL_API_KEY`, `MODEL_BASE_URL`, and `RESEARCH_MODEL` in `.env` (the user plans to use GLM Flash through Nous Portal) and follow `docs/support/verify-researcher.md`; no code change is expected.
 
 ## Not tested
 
@@ -249,6 +260,10 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] Decision log still read as if `.env.example` defaulted to `zai/glm-5.3-flash` — fixed (this commit)
 
 ### Verification
+
+- PR-feedback documentation pass 2 (fresh-context validator): clean against the implementation and technical-writing rules; 16 local links and whitespace checks pass.
+- PR-feedback documentation pass 1: two presentation findings (request-flow diagram and provider comparison table); both addressed.
+- Documentation check: 16 relative links resolve; researcher scope includes strategies, approaches, and patterns; `git diff --check` passes. This prose-only change does not require repeating the test suite. Live-model behavior remains unverified.
 
 - Gate: `npm run typecheck && npm test` passes (4 files, 32 tests).
 - Validation pass 1 (fresh-context subagent): one `fix` finding, fixed (5dbaca8).
