@@ -245,10 +245,11 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - [x] Gateway limitation overstated: `netlify` and `vercel` gateways pass; only `mastra` and custom gateways are rejected — fixed (4a4119f)
 - [x] Plan's project layout and ownership table missed the provider check and its files — fixed (4a4119f)
 - [x] Accept gateway-routed model ids? — escalated; user decided to keep rejecting them (see Decision log)
+- [x] Open Questions, the plan's definition description, the README agent-layer row, and the unknown-provider error still described per-agent key and endpoint variables — fixed (787c675)
 
 ### Verification
 
-- Gate: `npm run typecheck && npm test` passes (4 files, 31 tests).
+- Gate: `npm run typecheck && npm test` passes (4 files, 32 tests).
 - Validation pass 1 (fresh-context subagent): one `fix` finding, fixed (5dbaca8).
 - Validation pass 2 (fresh-context subagent): three `fix` findings, fixed (8eba8cc).
 - Validation pass 3 (fresh-context subagent): clean at ea04eb6.
@@ -259,7 +260,8 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 8 (fresh-context subagent): clean at c5ed53a.
 - Validation pass 9 (fresh-context subagent) on 65ffc5c, the startup checks: two `fix` findings, fixed (125de2a); one `escalate`.
 - Validation pass 10 (fresh-context subagent) at 1487c03: two `fix` findings, fixed (4a4119f).
-- Validation: clean on pass 11 at fb6f8a0 (fresh-context subagent).
+- Validation pass 11 (fresh-context subagent): clean at fb6f8a0.
+- Validation pass 12 (fresh-context subagent) on 6a0e066, the shared provider variables: four `fix` findings, fixed (787c675).
 
 ## References
 
