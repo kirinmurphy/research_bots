@@ -33,6 +33,8 @@ RoboRepo’s published documentation describes Git, runtime, plans, agent config
 
 Create `src/repo/read-roborepo-context.ts` as a read-only local adapter. The user explicitly supplies the checkout location. For v1, read only `README.md`, `package.json`, and an optionally curated repository-context Markdown file; do not recursively ingest source code. Reject missing or out-of-root paths and never read `.env`, credentials, or private data. Present a small approved summary to the strategist, with repository-relative paths for evidence. Treat repository text as untrusted data, not agent instructions. No content is sent to an LLM without an explicit research action.
 
+Model: this work runs on the Technology Strategist, so it uses `STRATEGY_MODEL` and the shared provider connection; it adds no model variables of its own.
+
 ## Implementation checklist
 
 - [ ] Implement the allowlisted read-only snapshot, with path checks and bounded file sizes.

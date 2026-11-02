@@ -33,6 +33,8 @@ Videos often describe tools without verifying version changes, alternatives, mai
 
 Add `agents/technology-strategist/AGENT.md` and its Mastra definition. Provide a bounded web search/fetch capability supported by the installed runtime; keep tool configuration separate from domain schema. Input includes the question, candidate technologies, and constraints. Output uses `src/research/technology-evaluation.ts` for criteria, source references, advantages, limitations, build/buy decision, and unverified items. Favor official docs and repositories, mark conflicting or stale sources, and emit "insufficient evidence" where appropriate.
 
+Model: the strategist reads its model from `STRATEGY_MODEL` (planned: Qwen 3.7 Flash, for complex research and build-versus-buy questions) and reaches it through the shared provider connection, `MODEL_API_KEY` and the optional `MODEL_BASE_URL`, that the Knowledge Researcher already uses. Add no per-agent key or endpoint variables; uncomment `STRATEGY_MODEL` in `.env.example` and describe it in the README.
+
 ## Implementation checklist
 
 - [ ] Define strategist identity and structured evaluation schema.
