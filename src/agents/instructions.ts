@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
-import type { AgentDefinition } from "./definitions";
+import { type AgentDefinition, modelProvider, type ModelProviderEnvVars } from "./definitions";
 
 /**
  * Finds the project root by walking up from `startDir` to the nearest
@@ -37,9 +37,9 @@ export interface ModelSetting {
    */
   id: `${string}/${string}`;
   /**
-   * Absent when the agent's key variable is unset or blank, and then Mastra
-   * uses the provider's standard key variable. Always present with `url`,
-   * since Mastra has no fallback for a custom endpoint.
+   * Absent when the key variable is unset or blank, and then Mastra uses the
+   * provider's standard key variable. Always present with `url`, since Mastra
+   * has no fallback for a custom endpoint.
    */
   apiKey?: string;
   /** OpenAI-compatible base URL; absent means the provider's own endpoint from Mastra's registry. */
@@ -47,15 +47,16 @@ export interface ModelSetting {
 }
 
 /**
- * Reads the agent's model, API key, and optional endpoint from its variables,
- * so switching provider, including to one Mastra does not list, changes only
- * their values. Throws naming the variable when the model is missing or not
- * `provider/model-name`, the endpoint is not an http(s) URL, or an endpoint
- * is set without a key.
+ * Reads the agent's model from its use-case variable, and the key and optional
+ * endpoint from the shared provider variables, so switching provider,
+ * including to one Mastra does not list, changes only their values. Throws
+ * naming the variable when the model is missing or not `provider/model-name`,
+ * the endpoint is not an http(s) URL, or an endpoint is set without a key.
  */
 export function resolveModel(
-  definition: Pick<AgentDefinition, "modelEnvVar" | "apiKeyEnvVar" | "modelUrlEnvVar">,
+  definition: Pick<AgentDefinition, "modelEnvVar">,
   env: Record<string, string | undefined>,
+  provider: ModelProviderEnvVars = modelProvider,
 ): ModelSetting {
   const id = env[definition.modelEnvVar]?.trim();
   if (!id) {
@@ -66,13 +67,13 @@ export function resolveModel(
   if (!isModelRouterId(id)) {
     throw new Error(`${definition.modelEnvVar} must be provider/model-name, got "${id}".`);
   }
-  const apiKey = env[definition.apiKeyEnvVar]?.trim();
-  const url = env[definition.modelUrlEnvVar]?.trim();
+  const apiKey = env[provider.apiKeyEnvVar]?.trim();
+  const url = env[provider.urlEnvVar]?.trim();
   if (url && !isHttpUrl(url)) {
-    throw new Error(`${definition.modelUrlEnvVar} must be an http(s) URL, got "${url}".`);
+    throw new Error(`${provider.urlEnvVar} must be an http(s) URL, got "${url}".`);
   }
   if (url && !apiKey) {
-    throw new Error(`${definition.apiKeyEnvVar} is required when ${definition.modelUrlEnvVar} is set.`);
+    throw new Error(`${provider.apiKeyEnvVar} is required when ${provider.urlEnvVar} is set.`);
   }
   return { id, ...(apiKey && { apiKey }), ...(url && { url }) };
 }

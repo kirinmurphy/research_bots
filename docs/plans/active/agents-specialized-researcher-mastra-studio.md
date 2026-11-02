@@ -1,7 +1,7 @@
 ---
 id: io239qp2
 priority: none
-next_action: Set KNOWLEDGE_RESEARCHER_MODEL and KNOWLEDGE_RESEARCHER_API_KEY in .env, run the fixed smoke-test prompt in Studio before and after one AGENT.md edit, and fill in docs/smoke-tests/knowledge-researcher-studio.md.
+next_action: Set MODEL_API_KEY, MODEL_BASE_URL, and RESEARCH_MODEL in .env, run the fixed smoke-test prompt in Studio before and after one AGENT.md edit, and fill in docs/smoke-tests/knowledge-researcher-studio.md.
 blocked_by: []
 depends_on: []
 related: ["12v3ljqo", "w6j1t8pq", "pkxml601", "y9gc5tc0"]
@@ -54,7 +54,7 @@ This plan is the root of the backlog. Later plans build on what it creates:
 
 | Switch | Handled by | Cost of switching |
 | --- | --- | --- |
-| Model provider (for example GLM to Claude) | Mastra's model router, reading a `provider/model-name` string | Change the values of `KNOWLEDGE_RESEARCHER_MODEL`, `KNOWLEDGE_RESEARCHER_API_KEY`, and, for an unlisted provider, `KNOWLEDGE_RESEARCHER_MODEL_URL` |
+| Model provider (for example GLM to Claude) | Mastra's model router, reading a `provider/model-name` string | Change the values of `MODEL_API_KEY`, the agents' model variables (such as `RESEARCH_MODEL`), and, for an unlisted provider, `MODEL_BASE_URL` |
 | Agent framework (for example Mastra to another SDK) | The thin agent layer in this plan | Rewrite `src/mastra/` and any workflows; `src/agents/` and domain code stay unchanged |
 
 ### Ownership boundary
@@ -122,7 +122,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Model configuration
 
-The model is a Mastra model-router string (`provider/model-name`) read from the `KNOWLEDGE_RESEARCHER_MODEL` environment variable. The key comes from `KNOWLEDGE_RESEARCHER_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for a listed provider applies (with a custom endpoint set there is no fallback, so the key is required). An optional `KNOWLEDGE_RESEARCHER_MODEL_URL` points the agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. Startup fails with an error naming the variable when the model setting is missing or malformed, names a provider Mastra's router does not list (checked in `src/mastra/` only when no endpoint is set), when the endpoint is not an http(s) URL, or when an endpoint is set without a key. No keys appear in source or in `.env.example`.
+All agents share one provider connection, and each agent's model is named by use case. The researcher's model is a Mastra model-router string (`provider/model-name`) read from `RESEARCH_MODEL`; later agents read `REVIEW_MODEL`, `STRATEGY_MODEL`, or `CATEGORIZATION_MODEL`, which `.env.example` already lists, commented out. The key comes from `MODEL_API_KEY`, whatever the provider, so switching provider changes values and renames nothing; when that variable is unset, Mastra's standard variable for a listed provider applies (with a custom endpoint set there is no fallback, so the key is required). An optional `MODEL_BASE_URL` points every agent at any OpenAI-compatible endpoint, which covers providers the router does not list (such as Nous Portal) without code changes. Startup fails with an error naming the variable when the model setting is missing or malformed, names a provider Mastra's router does not list (checked in `src/mastra/` only when no endpoint is set), when the endpoint is not an http(s) URL, or when an endpoint is set without a key. No keys appear in source or in `.env.example`.
 
 ### Tooling decisions
 
@@ -146,7 +146,7 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 - [x] Create `src/agents/` with the agent definition, the `AgentRunner` type, and the instruction and model loaders, with no Mastra imports.
 - [x] Write `agents/knowledge-researcher/AGENT.md`; build and register the Mastra agent from its definition in `src/mastra/`.
 - [x] Implement the Mastra-backed `AgentRunner` as a direct delegation to the registered agent.
-- [x] Add `.env.example` listing `KNOWLEDGE_RESEARCHER_MODEL`, `KNOWLEDGE_RESEARCHER_API_KEY`, and the optional `KNOWLEDGE_RESEARCHER_MODEL_URL` with placeholder values.
+- [x] Add `.env.example` listing `MODEL_API_KEY`, the optional `MODEL_BASE_URL`, `RESEARCH_MODEL`, and the not-yet-used model variables for later agents, with placeholder values.
 - [x] Add the Vitest tests listed under Validation.
 - [ ] (Blocked: provider API key) Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
 - [ ] (Blocked: provider API key) Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
@@ -165,8 +165,8 @@ The smoke-test record lists the date, Mastra version, model string, the prompt, 
 | Check | How it is verified |
 | --- | --- |
 | Instructions come from `AGENT.md` | Vitest: the instruction loader returns a fixture file's text, and two different fixture files produce two different results |
-| Missing model fails clearly | Vitest: resolving the model without `KNOWLEDGE_RESEARCHER_MODEL`, or with a malformed value, throws an error naming the variable |
-| One set of variables for any provider | Vitest: the model id, key, and optional endpoint come from the agent's variables; an unset key or endpoint is omitted; a non-http(s) endpoint, or an endpoint without a key, throws naming the variable |
+| Missing model fails clearly | Vitest: resolving the model without its variable (`RESEARCH_MODEL` for the researcher), or with a malformed value, throws an error naming the variable |
+| One set of variables for any provider | Vitest: the model id comes from the agent's use-case variable and the key and optional endpoint from the shared provider variables, the same for every agent; an unset key or endpoint is omitted; a non-http(s) endpoint, or an endpoint without a key, throws naming the variable |
 | Unknown provider fails clearly | Vitest: a provider Mastra's router does not list throws naming the variable and provider; listed providers, unlisted model names, and any label with an endpoint pass |
 | Runner delegates to Mastra | Vitest: the Mastra runner, given a `Mastra` instance whose agent returns a canned response, returns that text for the agent's id and rejects an unknown id; no model is called |
 | `src/agents/` is framework-free | `grep -rn "@mastra" src/agents` prints nothing |
@@ -215,6 +215,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - 2026-10-31: `tsconfig.json` lists `"types": ["node"]`; TypeScript 6 no longer includes `@types/node` automatically.
 - 2026-11-01: User decision: startup fails when an endpoint is set without a key (resolving the escalated question; the cost is that a keyless local server needs a placeholder key), and when the model names a provider Mastra's router does not list. The provider check sits in `src/mastra/model-config.ts` because it reads Mastra's registry (`getProviderConfig` from `@mastra/core/llm`); `src/agents/` stays framework-free. Only the provider is checked, not the model name, because the router's model lists trail new releases and a strict check would block new models. With an endpoint set the provider is a label, so it is not checked.
 - 2026-11-01: User decision: keep rejecting model ids routed through Mastra's own `mastra` gateway or a custom gateway. Accepting them would depend on Mastra's non-public gateway lookup, and the user's providers (direct keys, or Nous through the URL variable) need no gateway. Gateways in the provider registry (`netlify`, `vercel`, `openrouter`) already pass.
+- 2026-11-02: User decision: one provider connection (`MODEL_API_KEY`, optional `MODEL_BASE_URL`) serves every agent, and model variables are named by use case (`RESEARCH_MODEL`, `REVIEW_MODEL`, `STRATEGY_MODEL`, `CATEGORIZATION_MODEL`), so adding agents adds no new variable names. Supersedes the per-agent `KNOWLEDGE_RESEARCHER_*` variables. Code reads only `RESEARCH_MODEL` today; the other three appear in `.env.example`, commented out, until their agents exist. The planned models are GLM Flash (research), DeepSeek Flash (review, a second model family), Qwen 3.7 Flash (strategy), and Ling 3.0 Flash (bulk categorization), all through one provider such as Nous Portal. Shared names chosen over a project prefix because the project owns its `.env`.
 
 ## Open Questions
 

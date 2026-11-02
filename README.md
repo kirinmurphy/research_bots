@@ -28,15 +28,19 @@ npm install
 
 Copy `.env.example` to `.env` and fill in real values. `.env` is ignored by Git.
 
+All agents share one provider connection, and each agent picks its model by use case.
+
 | Variable | Meaning |
 | --- | --- |
-| `KNOWLEDGE_RESEARCHER_MODEL` | The researcher's model, as a Mastra model-router string `provider/model-name`. Required: startup fails with an error naming this variable when it is missing, malformed, or names a provider Mastra does not list (unless the URL variable is set). |
-| `KNOWLEDGE_RESEARCHER_API_KEY` | API key for whichever provider serves the model. When unset, Mastra falls back to a listed provider's standard variable, such as `ZHIPU_API_KEY`. Required when `KNOWLEDGE_RESEARCHER_MODEL_URL` is set: startup fails without it, because Mastra has no fallback for a custom endpoint. |
-| `KNOWLEDGE_RESEARCHER_MODEL_URL` | Optional. An OpenAI-compatible base URL, for providers Mastra does not list. With it set, the part of the model string before the first slash is only a label, and the rest is sent as the model name. |
+| `MODEL_API_KEY` | API key for the provider. When unset, Mastra falls back to a listed provider's standard variable, such as `ZHIPU_API_KEY`. Required when `MODEL_BASE_URL` is set: startup fails without it, because Mastra has no fallback for a custom endpoint. |
+| `MODEL_BASE_URL` | Optional. An OpenAI-compatible base URL, for providers Mastra does not list. With it set, the part of each model string before the first slash is only a label, and the rest is sent as the model name. |
+| `RESEARCH_MODEL` | The Knowledge Researcher's model, as `provider/model-name`. Required: startup fails with an error naming this variable when it is missing, malformed, or names a provider Mastra does not list (unless `MODEL_BASE_URL` is set). |
 
-Changing provider means changing these values; no code changes and no variable renames. Each agent has its own set, so one agent can run on a cheap model while another uses a stronger one.
+`.env.example` also lists the model variables for agents not built yet (`REVIEW_MODEL`, `STRATEGY_MODEL`, `CATEGORIZATION_MODEL`), commented out. They take effect when their agents exist; an unset variable for an agent that does not exist yet is ignored.
 
-| Provider | `…_MODEL` | `…_MODEL_URL` |
+Changing provider means changing these values; no code changes and no variable renames. Prefer a pinned model id over a "latest" alias, so answers do not change when the provider updates the alias.
+
+| Provider | `RESEARCH_MODEL` | `MODEL_BASE_URL` |
 | --- | --- | --- |
 | Z.ai (GLM) | `zai/glm-5.3-flash` | unset |
 | DeepSeek | `deepseek/deepseek-v4-flash` | unset |
@@ -44,7 +48,7 @@ Changing provider means changing these values; no code changes and no variable r
 | Anthropic | `anthropic/claude-sonnet-5-5` | unset |
 | Nous Portal | `nous/<model name from Nous's model list>` | `https://inference-api.nousresearch.com/v1` (confirm in your Nous dashboard) |
 
-Startup checks only the provider part against Mastra's model router, so a new model name from a listed provider works before Mastra lists it; the [Mastra models page](https://mastra.ai/models) lists the providers. Gateways in that provider list, such as `netlify` and `vercel`, pass the check; ids routed through Mastra's own `mastra` gateway or a custom gateway are rejected, so use the URL variable for those.
+Startup checks only the provider part against Mastra's model router, so a new model name from a listed provider works before Mastra lists it; the [Mastra models page](https://mastra.ai/models) lists the providers. Gateways in that provider list, such as `netlify` and `vercel`, pass the check; ids routed through Mastra's own `mastra` gateway or a custom gateway are rejected, so use `MODEL_BASE_URL` for those.
 
 ## Run Studio
 

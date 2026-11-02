@@ -3,19 +3,29 @@ export interface AgentDefinition {
   name: string;
   /** Path to the agent's identity file, relative to the project root. */
   instructionsPath: string;
-  /** Environment variable holding a Mastra model-router string (`provider/model-name`). */
+  /**
+   * Environment variable holding the agent's model-router string
+   * (`provider/model-name`). Named by use case, so agents doing the same kind
+   * of work can share one.
+   */
   modelEnvVar: string;
-  /** Environment variable holding the API key for whichever provider `modelEnvVar` names. */
-  apiKeyEnvVar: string;
-  /** Environment variable holding an optional OpenAI-compatible endpoint, for providers Mastra does not list. */
-  modelUrlEnvVar: string;
 }
+
+export interface ModelProviderEnvVars {
+  apiKeyEnvVar: string;
+  /** Optional OpenAI-compatible endpoint, for providers Mastra does not list. */
+  urlEnvVar: string;
+}
+
+/** Every agent reaches its model through one provider connection: one key, one optional endpoint. */
+export const modelProvider = {
+  apiKeyEnvVar: "MODEL_API_KEY",
+  urlEnvVar: "MODEL_BASE_URL",
+} as const satisfies ModelProviderEnvVars;
 
 export const knowledgeResearcher = {
   id: "knowledge-researcher",
   name: "Knowledge Researcher",
   instructionsPath: "agents/knowledge-researcher/AGENT.md",
-  modelEnvVar: "KNOWLEDGE_RESEARCHER_MODEL",
-  apiKeyEnvVar: "KNOWLEDGE_RESEARCHER_API_KEY",
-  modelUrlEnvVar: "KNOWLEDGE_RESEARCHER_MODEL_URL",
+  modelEnvVar: "RESEARCH_MODEL",
 } as const satisfies AgentDefinition;

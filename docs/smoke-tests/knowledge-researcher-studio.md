@@ -10,7 +10,7 @@ Steps are in the README's Smoke test section.
 | Model string | `anthropic/claude-sonnet-5-5` |
 | Agents listed in Studio | Knowledge Researcher only; no tools, workflows, or subagents |
 | Instructions source | `GET /api/agents` returned `agents/knowledge-researcher/AGENT.md` as the agent's instructions under `mastra dev` |
-| Missing model setting | Starting without `KNOWLEDGE_RESEARCHER_MODEL` stopped with `KNOWLEDGE_RESEARCHER_MODEL is not set. Set it to a Mastra model string (provider/model-name), for example in .env.` |
+| Missing model setting | Starting without the model variable (then named `KNOWLEDGE_RESEARCHER_MODEL`, now `RESEARCH_MODEL`) stopped with `KNOWLEDGE_RESEARCHER_MODEL is not set. Set it to a Mastra model string (provider/model-name), for example in .env.` |
 | Trace storage | With this project's storage and tracing setup and Mastra's mock model (no provider key), one `generate` call stored an `agent_run` span whose trace ID matched the one `generate` returned. The storage exporter writes in batches, so the span appeared within about 8 seconds, not immediately. |
 
 ## Run 1 — original AGENT.md

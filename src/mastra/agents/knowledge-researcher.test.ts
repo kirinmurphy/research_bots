@@ -7,23 +7,23 @@ const projectRoot = findProjectRoot();
 
 describe("createKnowledgeResearcherAgent", () => {
   it("builds the researcher for a listed provider", () => {
-    const agent = createKnowledgeResearcherAgent(projectRoot, { KNOWLEDGE_RESEARCHER_MODEL: "zai/glm-5.3-flash" });
+    const agent = createKnowledgeResearcherAgent(projectRoot, { RESEARCH_MODEL: "zai/glm-5.3-flash" });
 
     expect(agent.id).toBe("knowledge-researcher");
   });
 
   it("stops on a provider Mastra does not list", () => {
-    expect(() => createKnowledgeResearcherAgent(projectRoot, { KNOWLEDGE_RESEARCHER_MODEL: "zia/glm-5.3-flash" })).toThrow(
-      /KNOWLEDGE_RESEARCHER_MODEL names provider "zia"/,
+    expect(() => createKnowledgeResearcherAgent(projectRoot, { RESEARCH_MODEL: "zia/glm-5.3-flash" })).toThrow(
+      /RESEARCH_MODEL names provider "zia"/,
     );
   });
 
   it("stops on an endpoint without a key", () => {
     expect(() =>
       createKnowledgeResearcherAgent(projectRoot, {
-        KNOWLEDGE_RESEARCHER_MODEL: "nous/some-model",
-        KNOWLEDGE_RESEARCHER_MODEL_URL: "https://inference.example.test/v1",
+        RESEARCH_MODEL: "nous/some-model",
+        MODEL_BASE_URL: "https://inference.example.test/v1",
       }),
-    ).toThrow("KNOWLEDGE_RESEARCHER_API_KEY is required when KNOWLEDGE_RESEARCHER_MODEL_URL is set.");
+    ).toThrow("MODEL_API_KEY is required when MODEL_BASE_URL is set.");
   });
 });
