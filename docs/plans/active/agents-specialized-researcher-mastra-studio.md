@@ -111,7 +111,7 @@ The scaffold may add further files (for example storage or observability setup i
 
 ### Agent definitions and instructions
 
-- `src/agents/definitions.ts` lists each agent as plain data: `id`, `name`, the repository-relative path to its `AGENT.md`, and the names of the environment variables that hold its model string, API key, and optional endpoint.
+- `src/agents/definitions.ts` lists each agent as plain data: `id`, `name`, the repository-relative path to its `AGENT.md`, and the name of the environment variable that holds its model string. The API key and optional endpoint variable names are shared by every agent, in `modelProvider` in the same file.
 - `src/agents/instructions.ts` reads an agent's `AGENT.md` and resolves its model string. Both take explicit inputs (path, environment) so tests need no provider key.
 - Instructions are read once when the agent is built. An edit to `AGENT.md` takes effect after restarting `mastra dev`; the README states this.
 - Resolve the `AGENT.md` path from the project root, not from the compiled module's location. `mastra dev` bundles source into a build directory, so a path relative to the module file can break.
@@ -219,7 +219,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 
 ## Open Questions
 
-- **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `KNOWLEDGE_RESEARCHER_MODEL` and `KNOWLEDGE_RESEARCHER_API_KEY` in `.env` (the user plans to use GLM 5.3 Flash or DeepSeek) and run the README's Smoke test steps; no code change is expected.
+- **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `MODEL_API_KEY`, `MODEL_BASE_URL`, and `RESEARCH_MODEL` in `.env` (the user plans to use GLM Flash through Nous Portal) and run the README's Smoke test steps; no code change is expected.
 
 ## Not tested
 

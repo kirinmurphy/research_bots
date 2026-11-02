@@ -78,7 +78,7 @@ Application code talks to agents through a small, project-owned layer, so the ag
 | Folder | Owns | Imports Mastra |
 | --- | --- | --- |
 | `agents/<agent-name>/AGENT.md` | Each agent's identity, as plain Markdown | — |
-| `src/agents/` | Agent definitions (id, name, `AGENT.md` path, and the model, key, and endpoint variable names), the `AgentRunner` interface, reading `AGENT.md`, resolving the model | No |
+| `src/agents/` | Agent definitions (id, name, `AGENT.md` path, each agent's model variable) and the shared key and endpoint variable names, the `AgentRunner` interface, reading `AGENT.md`, resolving the model | No |
 | `src/mastra/` | Building Mastra agents from definitions, checking the model's provider against Mastra's router, the Mastra-backed `AgentRunner`, the `Mastra` instance with storage and tracing | Yes |
 
 - `AgentRunner.generate(agentId, prompt)` resolves to the response text. Domain code receives an `AgentRunner` as a parameter, so its tests can pass a fake.

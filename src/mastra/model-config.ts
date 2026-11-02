@@ -1,5 +1,6 @@
 import { getProviderConfig } from "@mastra/core/llm";
 
+import { modelProvider } from "../agents/definitions";
 import type { ModelSetting } from "../agents/instructions";
 
 /**
@@ -16,7 +17,7 @@ export function checkModelProvider(setting: ModelSetting, modelEnvVar: string): 
   const provider = setting.id.slice(0, setting.id.indexOf("/"));
   if (!getProviderConfig(provider)) {
     throw new Error(
-      `${modelEnvVar} names provider "${provider}", which Mastra's model router does not list. Check the spelling against https://mastra.ai/models, or set a custom endpoint with its URL variable.`,
+      `${modelEnvVar} names provider "${provider}", which Mastra's model router does not list. Check the spelling against https://mastra.ai/models, or set a custom endpoint in ${modelProvider.urlEnvVar}.`,
     );
   }
   return setting;
