@@ -33,6 +33,8 @@ Successful execution does not prove the research is good. A small repeated evalu
 
 Store five intentionally varied text transcript fixtures under `tests/fixtures/transcripts/` (use excerpts that can be lawfully retained). Add `docs/evaluation-rubric.md` with four human-rated dimensions (0–2 each): source grounding, useful themes, actionable next exploration, and justified tool choice. Run each fixture through a baseline general agent and the specialized workflow with the same model settings; record runtime and token usage from available traces. Save results in a small Markdown table under `docs/evaluations/`.
 
+Record the model setting of each run as the values of the use-case variables (`RESEARCH_MODEL`, and `STRATEGY_MODEL` when the strategist runs), using pinned model ids rather than "latest" aliases so repeated runs compare the same models.
+
 ## Implementation checklist
 
 - [ ] Select five transcript fixtures spanning overlapping, contradictory, and shallow video topics.

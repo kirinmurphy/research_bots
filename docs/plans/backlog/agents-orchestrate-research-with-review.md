@@ -46,6 +46,8 @@ flowchart TD
 
 Do not create a universal runtime adapter. Keep domain operations typed and framework-independent; isolate Mastra-specific composition to `src/mastra/workflows/`.
 
+Models: each agent in the workflow keeps its own use-case variable (`RESEARCH_MODEL` for the researcher, `STRATEGY_MODEL` for the strategist) over the shared provider connection (`MODEL_API_KEY`, optional `MODEL_BASE_URL`). The review gate here is human. `.env.example` also reserves `REVIEW_MODEL` (planned: DeepSeek Flash, a different model family for a second opinion on important decisions); adding an automated second-opinion step would be a scope change for this plan, not an assumption of it.
+
 ## Implementation checklist
 
 - [ ] Implement a single URL-to-analysis workflow using existing functions.
