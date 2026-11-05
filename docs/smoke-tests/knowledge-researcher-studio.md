@@ -1,0 +1,38 @@
+# Knowledge Researcher Studio smoke test
+
+Follow the [Studio verification guide](../support/verify-researcher.md).
+
+## Setup check — 2026-10-31
+
+| Item | Value |
+| --- | --- |
+| Mastra | `@mastra/core` 1.79.0, `mastra` CLI 1.35.0 |
+| Model string | `anthropic/claude-sonnet-5-5` |
+| Agents listed in Studio | Knowledge Researcher only; no tools, workflows, or subagents |
+| Instructions source | `GET /api/agents` returned `agents/knowledge-researcher/AGENT.md` as the agent's instructions under `mastra dev` |
+| Missing model setting | Starting without the model variable (then named `KNOWLEDGE_RESEARCHER_MODEL`, now `RESEARCH_MODEL`) stopped with `KNOWLEDGE_RESEARCHER_MODEL is not set. Set it to a Mastra model string (provider/model-name), for example in .env.` |
+| Trace storage | With this project's storage and tracing setup and Mastra's mock model (no provider key), one `generate` call stored an `agent_run` span whose trace ID matched the one `generate` returned. The storage exporter writes in batches, so the span appeared within about 8 seconds, not immediately. |
+
+## Run 1 — original AGENT.md
+
+Not yet run: no provider API key was available when the project was set up.
+
+Prompt:
+
+```text
+A video claims that Mastra workflows replace the need for a job queue. Assess this claim.
+```
+
+- Date:
+- Response excerpt:
+- Trace ID:
+
+## Run 2 — after editing one rule
+
+Not yet run.
+
+- Rule changed:
+- Date:
+- Response excerpt:
+- Trace ID:
+- Difference from run 1:
