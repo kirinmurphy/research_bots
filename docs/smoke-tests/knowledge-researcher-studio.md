@@ -15,7 +15,7 @@ Follow the [Studio verification guide](../support/verify-researcher.md).
 
 ## Run 1 — original AGENT.md
 
-Not yet run: no provider API key was available when the project was set up.
+Not yet run. The automated execution environment cannot load the protected `.env` model credentials. Complete this user-run check during review by following the linked Studio verification guide.
 
 Prompt:
 

@@ -1,7 +1,7 @@
 ---
 id: io239qp2
 priority: none
-next_action: Set MODEL_API_KEY, MODEL_BASE_URL, and RESEARCH_MODEL in .env, run the fixed smoke-test prompt in Studio before and after one AGENT.md edit, and fill in docs/smoke-tests/knowledge-researcher-studio.md.
+next_action: Run /plan-review, including the two live Studio checks recorded under Not tested.
 blocked_by: []
 depends_on: []
 related: ["12v3ljqo", "w6j1t8pq", "pkxml601", "y9gc5tc0"]
@@ -152,8 +152,6 @@ The orchestration plan (`y9gc5tc0`) says not to create a universal runtime adapt
 - [x] Implement the Mastra-backed `AgentRunner` as a direct delegation to the registered agent.
 - [x] Add `.env.example` listing `MODEL_API_KEY`, the optional `MODEL_BASE_URL`, `RESEARCH_MODEL`, and the not-yet-used model variables for later agents, with placeholder values.
 - [x] Add the Vitest tests listed under Validation.
-- [ ] (Blocked: provider API key) Start Studio with `npm run dev`, submit the fixed prompt below, and record the result in `docs/smoke-tests/knowledge-researcher-studio.md`.
-- [ ] (Blocked: provider API key) Edit one rule in `AGENT.md`, restart, resubmit the same prompt, and record the difference in the same file.
 - [x] Write the README setup and use cases, linking configuration and verification guides under `docs/support/` and architecture and development guides under `docs/internal/`.
 
 Fixed smoke-test prompt:
@@ -225,17 +223,17 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 
 - 2026-11-02: PR feedback broadened the researcher’s scope to software strategies, approaches, and patterns, including specific software. README now owns setup and primary use cases; linked support and internal guides own configuration, manual verification, architecture, and development details.
 - 2026-11-02: Test layout remains unchanged while the user evaluates colocated unit tests versus a mirrored top-level `tests/` directory. No runtime modules or test paths were moved.
+- 2026-11-06: Keep the existing colocated unit-test layout for this plan. Moving tests is a separate organizational preference, not required to deliver or verify the researcher.
+- 2026-11-06: Defer the two live Studio checks to `## Not tested`. This execution environment cannot load the protected `.env` model credentials, while the implementation and credential-free trace storage are agent-checkable. The user can complete the documented before/after run during review.
 
 ## Open Questions
 
-- **Test organization preference pending.** User requested pros and cons before choosing. Recommendation: keep unit tests beside source and consider a separate integration-test folder when cross-module workflows exist.
-
-- **No provider API key available for the live smoke test.** No provider key is set in this environment, and keys are entered only by the user. Blocks: the two smoke-test runs (before and after an `AGENT.md` edit) and the trace evidence in `docs/smoke-tests/knowledge-researcher-studio.md`. Resolution: set `MODEL_API_KEY`, `MODEL_BASE_URL`, and `RESEARCH_MODEL` in `.env` (the user plans to use GLM Flash through Nous Portal) and follow `docs/support/verify-researcher.md`; no code change is expected.
+None.
 
 ## Not tested
 
-- [ ] Editing `AGENT.md` changes the researcher's answer to the fixed prompt. Needs two live model calls in Studio with a provider key.
-- [ ] A live-model run appears on Studio's Traces page. Trace storage itself is checked with Mastra's mock model (see the smoke-test record); seeing a real run in the Studio page needs a provider key.
+- [ ] Editing `AGENT.md` changes the researcher's answer to the fixed prompt. Needs two user-run live model calls because this execution environment cannot load the protected `.env` model credentials.
+- [ ] A live-model run appears on Studio's Traces page. Trace storage itself is checked with Mastra's mock model (see the smoke-test record); seeing a real run in Studio needs a user-run session with the protected model credentials.
 
 ## Review
 
@@ -279,6 +277,7 @@ Can you show how changing only `AGENT.md` changes the agent's response to the sa
 - Validation pass 11 (fresh-context subagent): clean at fb6f8a0.
 - Validation pass 12 (fresh-context subagent) on 6a0e066, the shared provider variables: four `fix` findings, fixed (787c675).
 - Validation pass 13 (fresh-context subagent) at f42d600: one `fix` finding in the Decision log wording, fixed; not re-validated, so the next `/plan-execute` run starts with a fresh pass before submitting.
+- Validation pass 14 (fresh-context subagent) at 9dcb961: clean. `npm run typecheck` passed. `npm test` ran all 32 tests; 29 passed, and three `findProjectRoot` tests reached their assertions but were reported failed when the sandbox denied recursive fixture cleanup in `afterEach`. GitHub Actions was unavailable because `api.github.com` could not be reached.
 
 ## References
 
