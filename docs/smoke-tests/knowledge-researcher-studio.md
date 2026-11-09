@@ -24,6 +24,8 @@ A video claims that Mastra workflows replace the need for a job queue. Assess th
 ```
 
 - Date:
+- Mastra version:
+- Model string:
 - Response excerpt:
 - Trace ID:
 
@@ -33,6 +35,8 @@ Not yet run.
 
 - Rule changed:
 - Date:
+- Mastra version:
+- Model string:
 - Response excerpt:
 - Trace ID:
 - Difference from run 1:
