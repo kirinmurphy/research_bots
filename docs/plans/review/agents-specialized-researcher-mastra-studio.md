@@ -1,7 +1,7 @@
 ---
 id: io239qp2
 priority: none
-next_action: Run /plan-review, including the two live Studio checks recorded under Not tested.
+next_action: User runs the two live Studio checks in docs/support/verify-researcher.md and reports the outcome to /plan-review.
 blocked_by: []
 depends_on: []
 related: ["12v3ljqo", "w6j1t8pq", "pkxml601", "y9gc5tc0"]
@@ -256,6 +256,9 @@ None.
 - [x] Accept gateway-routed model ids? — escalated; user decided to keep rejecting them (see Decision log)
 - [x] Open Questions, the plan's definition description, the README agent-layer row, and the unknown-provider error still described per-agent key and endpoint variables — fixed (787c675)
 - [x] Decision log still read as if `.env.example` defaulted to `zai/glm-5.3-flash` — fixed (this commit)
+- [x] Smoke-test run templates lacked the Mastra version and model string fields the plan and verification guide require — fixed in review (033cf90)
+- [ ] Live check: editing `AGENT.md` changes the researcher's answer to the fixed prompt — awaiting the user's run
+- [ ] Live check: a live-model run appears on Studio's Traces page — awaiting the user's run
 
 ### Verification
 
@@ -278,6 +281,17 @@ None.
 - Validation pass 12 (fresh-context subagent) on 6a0e066, the shared provider variables: four `fix` findings, fixed (787c675).
 - Validation pass 13 (fresh-context subagent) at f42d600: one `fix` finding in the Decision log wording, fixed; not re-validated, so the next `/plan-execute` run starts with a fresh pass before submitting.
 - Validation pass 14 (fresh-context subagent) at 9dcb961: clean. `npm run typecheck` passed. `npm test` ran all 32 tests; 29 passed, and three `findProjectRoot` tests reached their assertions but were reported failed when the sandbox denied recursive fixture cleanup in `afterEach`. GitHub Actions was unavailable because `api.github.com` could not be reached.
+- Review (2026-11-09): synchronized main (4aba0ef) into the branch as merge 4b4d129, no conflicts. The repository has no CI workflows, so the gate ran locally once at 4b4d129: `npm run typecheck` passed; `npm test` passed (4 files, 32 tests); `grep -rn "@mastra" src/agents` printed nothing; `git check-ignore .env` confirms `.env` is ignored.
+- Review Validator pass 1 (fresh-context subagent) at 4b4d129: one `fix` finding (smoke-test run template fields), fixed in 033cf90; no escalations. The fix is prose-only, so the test suite was not rerun and no further pass was needed.
+- Base failures: none.
+
+### Result
+- Status: pending — the two live Studio checks under Not tested need the user's run
+- Reviewed implementation commit: 033cf900269420dd8363cf3d356d60e482a5dd70
+- Base commit: 4aba0ef30ca4f424bf4b74fb6d6a658dc254d556
+
+### Approval
+- Decision: not requested — blocked by the two live Studio checks
 
 ## References
 
